@@ -2,12 +2,22 @@
 #include "DatFileItem.h"
 #include <iostream>
 
-DatFile::DatFile(std::string filename)
+DatFile::DatFile(std::string filename, bool write)
 {
     _filename = filename;
     _endianness = LITTLE_ENDIAN;
     _version = -1;
     _items = 0;
+
+    if (write)
+    {
+        _ofstream.open(_filename.c_str(), std::ios::binary | std::ios::out | std::ios::trunc);
+        if (!_ofstream.is_open())
+        {
+            throw 1;
+        }
+
+    }
 }
 
 unsigned int DatFile::_swap(unsigned int value)
@@ -33,6 +43,10 @@ short DatFile::_swap(short value)
 void DatFile::setVersion(unsigned int value)
 {
     _version = value;
+    if (_version == 1)
+    {
+        _endianness = BIG_ENDIAN;
+    }
 }
 
 unsigned int DatFile::version()
@@ -294,4 +308,68 @@ std::string DatFile::name()
         return _filename.substr(pos + 1);
     }
     return _filename;
+}
+
+void DatFile::setItems(std::vector<DatFileItem*>* value)
+{
+    delete [] _items;
+    _items = value;
+}
+
+DatFile& DatFile::operator<<(unsigned int value)
+{
+    if (_endianness == BIG_ENDIAN)
+    {
+        value = _swap(value);
+    }
+    _ofstream.write((char*)&value, sizeof(unsigned int));
+    _ofstream.flush();
+
+    return *this;
+}
+
+DatFile& DatFile::operator<<(int value)
+{
+    return  operator<<((unsigned int) value);
+}
+
+DatFile& DatFile::operator<<(unsigned short value)
+{
+    if (_endianness == BIG_ENDIAN)
+    {
+        value = _swap(value);
+    }
+    _ofstream.write((char*)&value, sizeof(unsigned short));
+    _ofstream.flush();
+
+    return *this;
+}
+
+DatFile& DatFile::operator<<(short value)
+{
+    return  operator<<((unsigned short) value);
+}
+
+DatFile& DatFile::operator<<(unsigned char value)
+{
+    _ofstream.write((char*)&value, sizeof(unsigned char));
+    _ofstream.flush();
+    return *this;
+}
+
+DatFile& DatFile::operator<<(char value)
+{
+    return  operator<<((unsigned char) value);
+}
+
+DatFile& DatFile::operator<<(std::string value)
+{
+    _ofstream.write((char*)&value[0], value.length());
+    _ofstream.flush();
+    return *this;
+}
+
+void DatFile::writeBytes(unsigned char* source, unsigned int value)
+{
+    _ofstream.write((char*)source, value);
 }

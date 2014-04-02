@@ -5,10 +5,40 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <algorithm>
+#include <dirent.h>
 
 DatFile* datFile = 0;
 bool quietMode = false;
-std::string action, source, destination, error;
+std::string action, source, destination, error, format;
+
+std::vector<std::string> directories;
+
+void scanDirectory(std::string path)
+{
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir (path.c_str())) != NULL)
+    {
+        while ((ent = readdir (dir)) != NULL)
+        {
+            std::string name = ent->d_name;
+            if (name == "." || name == "..") continue;
+            struct stat s;
+            std::string newpath = path + "/" + name;
+            stat(newpath.c_str(), &s);
+            if (s.st_mode & S_IFDIR)
+            {
+                directories.push_back(newpath.substr(source.length() + 1));
+                scanDirectory(newpath);
+            }
+        }
+        closedir (dir);
+    }
+    else
+    {
+        std::cout << "could not open directory" << std::endl;
+    }
+}
 
 bool checkDatFile()
 {
@@ -32,6 +62,50 @@ bool checkDatFile()
         error = source + " is not a DAT file";
         return false;
     }
+    return true;
+}
+
+bool actionPack()
+{
+    // source - folder
+    // destination - file
+
+    std::cout << "test: " << format << std::endl;
+
+    datFile = new DatFile(destination, true);
+    datFile->setVersion(format == "dat1" ? 1 : 2);
+    datFile->setItems(new std::vector<DatFileItem*>);
+
+    directories.push_back(".");
+    scanDirectory(source);
+
+    unsigned int aa = 33;
+    *datFile << aa << "test";
+
+    if (format == "dat1")
+    {
+        for (std::vector<std::string>::iterator it = directories.begin(); it != directories.end(); ++it)
+        {
+            std::cout << *it << std::endl;
+        }
+
+
+    }
+
+
+    /*
+    if (format == dat1)
+    {
+        //list directories
+
+        //list directories items
+    }
+    else
+    {
+        // list items
+    }
+    */
+
     return true;
 }
 
@@ -107,7 +181,7 @@ bool actionList()
 bool actionFormat()
 {
     if (!checkDatFile()) return false;
-    std::cout << "DAT" << datFile->version() << std::endl;
+    std::cout << "dat" << datFile->version() << std::endl;
     return true;
 }
 
@@ -141,6 +215,10 @@ int main(int argc, char** argv)
         {
             action = "unpack";
         }
+        else if (argument == "--pack" || argument == "-p")
+        {
+            action = "pack";
+        }
         else if (argument == "--list" || argument == "-l")
         {
             action = "list";
@@ -151,7 +229,22 @@ int main(int argc, char** argv)
         }
         else if (argument == "--format" || argument == "-f")
         {
-            action = "format";
+            if (i < argc - 1)
+            {
+                format = argv[i+1];
+                if (format == "dat1" || format == "dat2")
+                {
+                    i++;
+                }
+                else
+                {
+                    format = "";
+                }
+            }
+            else
+            {
+                action = "format";
+            }
         }
         else if (argument == "--quiet" || argument == "-q")
         {
@@ -173,6 +266,7 @@ int main(int argc, char** argv)
 
     bool result = true;
     if (action == "unpack") result = actionUnpack();
+    if (action == "pack") result = actionPack();
     if (action == "list") result = actionList();
     if (action == "version") result = actionVersion();
     if (action == "format") result = actionFormat();

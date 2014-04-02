@@ -28,8 +28,9 @@ protected:
     DatFile& operator>>(unsigned char &value);
     DatFile& operator>>(char &value);
     DatFile& operator>>(std::string &value);
+
 public:
-    DatFile(std::string filename);
+    DatFile(std::string filename, bool write = false);
     ~DatFile();
     std::string name();
     unsigned int version();
@@ -39,7 +40,16 @@ public:
     int size();
     void skipBytes(unsigned int value);
     void readBytes(unsigned char* destination, unsigned int value);
+    void writeBytes(unsigned char* source, unsigned int value);
     std::vector<DatFileItem*>* items();
+    void setItems(std::vector<DatFileItem*>* value);
+    DatFile& operator<<(unsigned int value);
+    DatFile& operator<<(int value);
+    DatFile& operator<<(unsigned short value);
+    DatFile& operator<<(short value);
+    DatFile& operator<<(unsigned char value);
+    DatFile& operator<<(char value);
+    DatFile& operator<<(std::string value);
 
 };
 
