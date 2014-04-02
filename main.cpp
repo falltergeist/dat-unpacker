@@ -119,7 +119,16 @@ bool actionVersion()
 
 void actionHelp()
 {
-    std::cout << "Usage help text..." << std::endl;
+    std::cout << "Usage: datfile [arguments]" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Arguments:" << std::endl;
+    std::cout << "  --list, -l list  DAT file items" << std::endl;
+    std::cout << "  --version, -v program version" << std::endl;
+    std::cout << "  --format, -f DAT file format" << std::endl;
+    std::cout << "  --quiet, -q quite mode. Do not display anything" << std::endl;
+    std::cout << "  --unpack, -u unpack DAT file" << std::endl;
+    std::cout << "  --source, -s path to DAT file" << std::endl;
+    std::cout << "  --destination, -d path to extract files" << std::endl;
 }
 
 int main(int argc, char** argv)
