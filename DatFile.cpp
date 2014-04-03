@@ -35,13 +35,19 @@ DatFile::DatFile(std::string filename, bool write)
 
     if (write)
     {
-        _ofstream.open(_filename.c_str(), std::ios::binary | std::ios::out | std::ios::trunc);
+        _ofstream.open(_filename.c_str(), std::ios::binary | std::ios::trunc);
         if (!_ofstream.is_open())
         {
             throw 1;
         }
-
     }
+}
+
+DatFile::~DatFile()
+{
+    if (_ifstream.is_open()) _ifstream.close();
+    if (_ofstream.is_open()) _ofstream.close();
+    delete _items;
 }
 
 unsigned int DatFile::_swap(unsigned int value)
@@ -115,7 +121,7 @@ void DatFile::_fetchItems()
     switch(_version)
     {
         case 1:
-        {
+        {            
             //fetching items
             _endianness = BIG_ENDIAN;
             setPosition(0);
@@ -159,7 +165,7 @@ void DatFile::_fetchItems()
                     }
 
                     item->setName(name)
-                        ->setCompressed( compression == 0x20 ? false : true)
+                        ->setCompressed(compression == 0x20 ? false : true)
                         ->setDataOffset(dataOffset)
                         ->setUnpackedSize(unpackedSize)
                         ->setPackedSize(packedSize);
@@ -181,10 +187,12 @@ void DatFile::_fetchItems()
             setPosition(realSize - 8);
             unsigned int filesTreeSize;
             *this >> filesTreeSize;
+            //std::cout << "FilesTreeSize: " << filesTreeSize << std::endl;
 
             setPosition(realSize - filesTreeSize - 8);
             unsigned int filesCounter;
             *this >> filesCounter;
+            //std::cout << "FilesCounter: " << filesCounter << std::endl;
 
             _items = new std::vector<DatFileItem*>;
             for (unsigned int i = 0; i != filesCounter; ++i)
@@ -195,9 +203,12 @@ void DatFile::_fetchItems()
                 unsigned int unpackedSize, packedSize, dataOffset;
                 DatFileItem* item = new DatFileItem(this);
 
+                //std::cout << "Pos: " << this->position() << std::endl;
                 *this >> length;
+                //std::cout << "Length: " << length << std::endl;
                 name.resize(length);
                 *this >> name >> compressed >> unpackedSize >> packedSize >> dataOffset;
+
 
                 item->setName(name)
                     ->setUnpackedSize(unpackedSize)
@@ -346,7 +357,7 @@ DatFile& DatFile::operator<<(unsigned int value)
     {
         value = _swap(value);
     }
-    _ofstream.write((char*)&value, sizeof(unsigned int));
+    _ofstream.write((char*)&value, 4);
     _ofstream.flush();
 
     return *this;
@@ -363,7 +374,7 @@ DatFile& DatFile::operator<<(unsigned short value)
     {
         value = _swap(value);
     }
-    _ofstream.write((char*)&value, sizeof(unsigned short));
+    _ofstream.write((char*)&value, 2);
     _ofstream.flush();
 
     return *this;
@@ -376,7 +387,7 @@ DatFile& DatFile::operator<<(short value)
 
 DatFile& DatFile::operator<<(unsigned char value)
 {
-    _ofstream.write((char*)&value, sizeof(unsigned char));
+    _ofstream.write((char*)&value, 1);
     _ofstream.flush();
     return *this;
 }
@@ -388,8 +399,7 @@ DatFile& DatFile::operator<<(char value)
 
 DatFile& DatFile::operator<<(std::string value)
 {
-    _ofstream.write((char*)&value[0], value.length());
-    _ofstream.flush();
+    _ofstream << value;
     return *this;
 }
 

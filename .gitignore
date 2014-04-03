@@ -5,3 +5,4 @@ CMakeFiles
 *.cmake
 datfile
 *.exe
+*.cbp

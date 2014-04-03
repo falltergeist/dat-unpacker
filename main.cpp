@@ -102,19 +102,80 @@ bool actionPack()
     directories.push_back(".");
     scanDirectory(source);
 
-    unsigned int aa = 33;
-    *datFile << aa << "test";
-
-    if (format == "dat1")
+    if (format == "dat2")
     {
         for (std::vector<std::string>::iterator it = directories.begin(); it != directories.end(); ++it)
         {
-            std::cout << *it << std::endl;
+            std::string path = source + "/" + *it;
+            DIR *dir;
+            struct dirent *ent;
+            if ((dir = opendir (path.c_str())) != NULL)
+            {
+                while ((ent = readdir (dir)) != NULL)
+                {
+                    std::string name = ent->d_name;
+                    if (name == "." || name == "..") continue;
+                    struct stat s;
+                    std::string newpath = path + "/" + name;
+                    stat(newpath.c_str(), &s);
+                    if (!(s.st_mode & S_IFDIR))
+                    {
+                        std::string filename = ent->d_name;
+                        if (*it != ".")
+                        {
+                            filename = *it + "/" + filename;
+                        }
+                        DatFileItem* item = new DatFileItem(datFile);
+                        item->setName(filename);
+
+                        item->setUnpackedSize((unsigned int)s.st_size);
+                        item->setPackedSize((unsigned int)s.st_size); // NO COMPRESSION
+                        item->setDataOffset(datFile->position());
+
+                        datFile->items()->push_back(item);
+
+                        unsigned char* buffer = new unsigned char[item->unpackedSize()];
+                        std::ifstream ifstream(newpath.c_str(), std::ios::binary);
+                        ifstream.read((char*)buffer, item->unpackedSize());
+                        datFile->writeBytes(buffer, item->unpackedSize());
+                        delete [] buffer;
+                        ifstream.close();
+
+                        std::cout << item->name() << " - " << item->unpackedSize() << " - " << item->dataOffset() << std::endl;
+
+                    }
+                }
+                closedir (dir);
+            }
+            else
+            {
+                std::cout << "could not open directory" << std::endl;
+            }
+
         }
 
+        unsigned int dirTreePosition = datFile->position();
+
+        unsigned int filesTotal = datFile->items()->size();
+        *datFile << filesTotal;
+
+
+        for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it)
+        {
+            DatFileItem* item = *it;
+            unsigned int filenameSize = item->name().length();
+            unsigned char compression = 0;
+
+            *datFile << filenameSize << item->name() << compression << item->unpackedSize() << item->packedSize() << item->dataOffset();
+        }
+
+        unsigned int dirTreeSize = datFile->position() - dirTreePosition;
+        *datFile << dirTreeSize << (unsigned int) (datFile->position() + 8);
 
     }
 
+    // 15642245
+    // 81 AE EE 00
 
     /*
     if (format == dat1)
@@ -262,6 +323,7 @@ int main(int argc, char** argv)
                 else
                 {
                     format = "";
+                    action = "format";
                 }
             }
             else
