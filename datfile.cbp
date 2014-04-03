@@ -47,6 +47,16 @@
             <DistClean command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
+      <Target title="edit_cache">
+         <Option working_dir="/home/alexeevdv/datfile" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 edit_cache" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
       <Target title="rebuild_cache">
          <Option working_dir="/home/alexeevdv/datfile" />
          <Option type="4" />

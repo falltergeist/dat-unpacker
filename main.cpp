@@ -1,16 +1,39 @@
+/*
+ * Copyright 2012-2014 Falltergeist Developers.
+ *
+ * This file is part of Falltergeist.
+ *
+ * Falltergeist is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Falltergeist is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Falltergeist.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// C++ standard includes
 #include <iostream>
 #include <fstream>
-#include "DatFile.h"
-#include "DatFileItem.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <algorithm>
 #include <dirent.h>
 
+// Falltergeist includes
+#include "DatFile.h"
+#include "DatFileItem.h"
+
+// Third party includes
+
 DatFile* datFile = 0;
 bool quietMode = false;
 std::string action, source, destination, error, format;
-
 std::vector<std::string> directories;
 
 void scanDirectory(std::string path)
