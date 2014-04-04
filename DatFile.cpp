@@ -19,6 +19,7 @@
 
 // C++ standard includes
 #include <iostream>
+#include <algorithm>
 
 // Falltergeist includes
 #include "DatFile.h"
@@ -163,6 +164,9 @@ void DatFile::_fetchItems()
                     {
                         name = directories.at(i) + "/" + name;
                     }
+                    // Replace slashes and transform to lower case
+                    std::replace(name.begin(),name.end(),'\\','/');
+                    std::transform(name.begin(),name.end(),name.begin(), ::tolower);
 
                     item->setName(name)
                         ->setCompressed(compression == 0x20 ? false : true)
@@ -209,6 +213,9 @@ void DatFile::_fetchItems()
                 name.resize(length);
                 *this >> name >> compressed >> unpackedSize >> packedSize >> dataOffset;
 
+                // Replace slashes and transform to lower case
+                std::replace(name.begin(),name.end(),'\\','/');
+                std::transform(name.begin(),name.end(),name.begin(), ::tolower);
 
                 item->setName(name)
                     ->setUnpackedSize(unpackedSize)
@@ -400,6 +407,7 @@ DatFile& DatFile::operator<<(char value)
 DatFile& DatFile::operator<<(std::string value)
 {
     _ofstream << value;
+    _ofstream.flush();
     return *this;
 }
 

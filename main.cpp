@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <algorithm>
 #include <dirent.h>
+#include <map>
 
 // Falltergeist includes
 #include "DatFile.h"
@@ -34,10 +35,14 @@
 DatFile* datFile = 0;
 bool quietMode = false;
 std::string action, source, destination, error, format;
-std::vector<std::string> directories;
+std::map<std::string, std::vector<DatFileItem*>*> filesList;
 
 void scanDirectory(std::string path)
 {
+    std::string shortPath = path.substr(source.length() + 1);
+    if (shortPath != ".") shortPath = shortPath.substr(2);
+    filesList.insert(std::make_pair<std::string, std::vector<DatFileItem*>*>(shortPath, new std::vector<DatFileItem*>));
+
     DIR *dir;
     struct dirent *ent;
     if ((dir = opendir (path.c_str())) != NULL)
@@ -51,15 +56,27 @@ void scanDirectory(std::string path)
             stat(newpath.c_str(), &s);
             if (s.st_mode & S_IFDIR)
             {
-                directories.push_back(newpath.substr(source.length() + 1));
+                //directories.push_back(newpath.substr(source.length() + 1));
                 scanDirectory(newpath);
+            }
+            else
+            {
+                DatFileItem* item = new DatFileItem(0);
+                item->setName(name);
+                item->setPackedSize(s.st_size);
+                item->setUnpackedSize(s.st_size);
+                filesList.at(shortPath)->push_back(item);
             }
         }
         closedir (dir);
+        if (filesList.at(shortPath)->size() == 0)
+        {
+            filesList.erase(shortPath);
+        }
     }
     else
     {
-        std::cout << "could not open directory" << std::endl;
+        std::cout << "could not open directory: " << path << std::endl;
     }
 }
 
@@ -93,72 +110,45 @@ bool actionPack()
     // source - folder
     // destination - file
 
-    std::cout << "test: " << format << std::endl;
-
     datFile = new DatFile(destination, true);
     datFile->setVersion(format == "dat1" ? 1 : 2);
     datFile->setItems(new std::vector<DatFileItem*>);
 
-    directories.push_back(".");
-    scanDirectory(source);
+    scanDirectory(source + "/.");
 
     if (format == "dat2")
     {
-        for (std::vector<std::string>::iterator it = directories.begin(); it != directories.end(); ++it)
+        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
         {
-            std::string path = source + "/" + *it;
-            DIR *dir;
-            struct dirent *ent;
-            if ((dir = opendir (path.c_str())) != NULL)
+            std::string directory = it->first;
+            std::vector<DatFileItem*>* files = it->second;
+            for (std::vector<DatFileItem*>::iterator it = files->begin(); it != files->end(); ++it)
             {
-                while ((ent = readdir (dir)) != NULL)
-                {
-                    std::string name = ent->d_name;
-                    if (name == "." || name == "..") continue;
-                    struct stat s;
-                    std::string newpath = path + "/" + name;
-                    stat(newpath.c_str(), &s);
-                    if (!(s.st_mode & S_IFDIR))
-                    {
-                        std::string filename = ent->d_name;
-                        if (*it != ".")
-                        {
-                            filename = *it + "/" + filename;
-                        }
-                        DatFileItem* item = new DatFileItem(datFile);
-                        item->setName(filename);
+                DatFileItem* item = *it;
+                std::string path = source + "/" + directory + "/" + item->name();
+                std::cout << directory << "/" << item->name() << std::endl;
 
-                        item->setUnpackedSize((unsigned int)s.st_size);
-                        item->setPackedSize((unsigned int)s.st_size); // NO COMPRESSION
-                        item->setDataOffset(datFile->position());
+                item->setDataOffset(datFile->position());
+                std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
+                unsigned char* buffer = new unsigned char[item->unpackedSize()];
+                stream.read((char*)buffer, item->unpackedSize());
+                datFile->writeBytes(buffer, item->unpackedSize());
+                delete [] buffer;
+                stream.close();
 
-                        datFile->items()->push_back(item);
+                std::string newName = directory + "/" + item->name();
+                // Replace slashes and transform to lower case
+                std::replace(newName.begin(),newName.end(),'\\','/');
+                std::transform(newName.begin(),newName.end(),newName.begin(), ::tolower);
+                item->setName(newName);
 
-                        unsigned char* buffer = new unsigned char[item->unpackedSize()];
-                        std::ifstream ifstream(newpath.c_str(), std::ios::binary);
-                        ifstream.read((char*)buffer, item->unpackedSize());
-                        datFile->writeBytes(buffer, item->unpackedSize());
-                        delete [] buffer;
-                        ifstream.close();
-
-                        std::cout << item->name() << " - " << item->unpackedSize() << " - " << item->dataOffset() << std::endl;
-
-                    }
-                }
-                closedir (dir);
+                datFile->items()->push_back(item);
             }
-            else
-            {
-                std::cout << "could not open directory" << std::endl;
-            }
-
         }
-
         unsigned int dirTreePosition = datFile->position();
 
         unsigned int filesTotal = datFile->items()->size();
         *datFile << filesTotal;
-
 
         for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it)
         {
@@ -171,25 +161,64 @@ bool actionPack()
 
         unsigned int dirTreeSize = datFile->position() - dirTreePosition;
         *datFile << dirTreeSize << (unsigned int) (datFile->position() + 8);
-
     }
-
-    // 15642245
-    // 81 AE EE 00
-
-    /*
-    if (format == dat1)
+    else if (format == "dat1")
     {
-        //list directories
+        *datFile << (unsigned int) filesList.size() << (unsigned int) 0x5E << (unsigned int) 0x0 << (unsigned int) 0x0;
+        unsigned int dataOffset = 16;
+        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
+        {
+            std::string directory = it->first;
+            *datFile << (unsigned char) directory.length() << directory;
+            dataOffset += 1 + directory.length();
+        }
 
-        //list directories items
-    }
-    else
-    {
-        // list items
-    }
-    */
+        // Calculating header size
+        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
+        {
+            dataOffset += 16;
+            std::vector<DatFileItem*>* items = it->second;
+            for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
+            {
+                dataOffset += 17 + (*it)->name().length();
+            }
+        }
 
+        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
+        {
+            std::vector<DatFileItem*>* items = it->second;
+            *datFile << (unsigned int) items->size() << (unsigned int) 0x5E << (unsigned int) 0x10 << (unsigned int) 0x0;
+            for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
+            {
+                DatFileItem* item = *it;
+                *datFile << (unsigned char) item->name().length() << item->name();
+                *datFile << (unsigned int) 0x20; // !NO COMPRESSION
+                *datFile << dataOffset << item->unpackedSize() << item->packedSize();
+                dataOffset += item->packedSize();
+            }
+        }
+
+        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
+        {
+            std::string directory = it->first;
+            std::vector<DatFileItem*>* items = it->second;
+            for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
+            {
+                DatFileItem* item = *it;
+
+                std::string path = source + "/" + directory + "/" + item->name();
+                std::cout << directory << "/" << item->name() << std::endl;
+                std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
+                unsigned char* buffer = new unsigned char[item->unpackedSize()];
+                stream.read((char*)buffer, item->unpackedSize());
+                datFile->writeBytes(buffer, item->unpackedSize());
+                delete [] buffer;
+                stream.close();
+            }
+        }
+
+
+    }
     return true;
 }
 

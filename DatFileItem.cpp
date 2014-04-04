@@ -18,8 +18,6 @@
  */
 
 // C++ standard includes
-#include <algorithm>
-#include <iostream>
 
 // Falltergeist includes
 #include "DatFileItem.h"
@@ -75,9 +73,6 @@ bool DatFileItem::compressed()
 DatFileItem* DatFileItem::setName(std::string value)
 {
     _name = value;
-    // Replace slashes and transform to lower case
-    std::replace(_name.begin(),_name.end(),'\\','/');
-    std::transform(_name.begin(),_name.end(),_name.begin(), ::tolower);
     return this;
 }
 
