@@ -126,6 +126,7 @@ bool actionPack()
             {
                 DatFileItem* item = *it;
                 std::string path = source + "/" + directory + "/" + item->name();
+
                 std::cout << directory << "/" << item->name() << std::endl;
 
                 item->setDataOffset(datFile->position());
@@ -137,6 +138,8 @@ bool actionPack()
                 stream.close();
 
                 std::string newName = directory + "/" + item->name();
+                std::replace(newName.begin(),newName.end(),'/','\\');
+
                 // Replace slashes and transform to lower case
                 //std::replace(newName.begin(),newName.end(),'\\','/');
                 //std::transform(newName.begin(),newName.end(),newName.begin(), ::tolower);
@@ -153,10 +156,15 @@ bool actionPack()
         for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it)
         {
             DatFileItem* item = *it;
-            unsigned int filenameSize = item->name().length();
             unsigned char compression = 0;
 
-            *datFile << filenameSize << item->name() << compression << item->unpackedSize() << item->packedSize() << item->dataOffset();
+            if (item->name()[0] == '.')
+            {
+                item->setName(item->name().substr(2));
+            }
+
+
+            *datFile << (unsigned int) item->name().length() << item->name() << compression << item->unpackedSize() << item->packedSize() << item->dataOffset();
         }
 
         unsigned int dirTreeSize = datFile->position() - dirTreePosition;
@@ -169,6 +177,7 @@ bool actionPack()
         for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
         {
             std::string directory = it->first;
+            std::replace(directory.begin(),directory.end(),'/','\\');
             *datFile << (unsigned char) directory.length() << directory;
             dataOffset += 1 + directory.length();
         }
@@ -205,8 +214,8 @@ bool actionPack()
             for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
             {
                 DatFileItem* item = *it;
-
                 std::string path = source + "/" + directory + "/" + item->name();
+
                 std::cout << directory << "/" << item->name() << std::endl;
                 std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
                 unsigned char* buffer = new unsigned char[item->unpackedSize()];
@@ -254,8 +263,12 @@ bool actionUnpack()
         // rtrim
         destination.erase(destination.find_last_not_of("/\\")+1);
 
+        std::string name = item->name();
+        std::replace(name.begin(),name.end(),'\\','/');
+        //std::transform(name.begin(),name.end(),name.begin(), ::tolower);
+
         std::string basepath = destination + "/";
-        std::string fullpath = basepath + item->name();
+        std::string fullpath = basepath + name;
         std::string path = fullpath;
         std::string dirpath = "";
         while (path.find('/') != std::string::npos)
