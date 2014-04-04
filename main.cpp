@@ -138,8 +138,8 @@ bool actionPack()
 
                 std::string newName = directory + "/" + item->name();
                 // Replace slashes and transform to lower case
-                std::replace(newName.begin(),newName.end(),'\\','/');
-                std::transform(newName.begin(),newName.end(),newName.begin(), ::tolower);
+                //std::replace(newName.begin(),newName.end(),'\\','/');
+                //std::transform(newName.begin(),newName.end(),newName.begin(), ::tolower);
                 item->setName(newName);
 
                 datFile->items()->push_back(item);
@@ -164,7 +164,7 @@ bool actionPack()
     }
     else if (format == "dat1")
     {
-        *datFile << (unsigned int) filesList.size() << (unsigned int) 0x5E << (unsigned int) 0x0 << (unsigned int) 0x0;
+        *datFile << (unsigned int) filesList.size() << (unsigned int) 0x0A << (unsigned int) 0x0 << (unsigned int) 0x0;
         unsigned int dataOffset = 16;
         for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
         {
@@ -187,13 +187,13 @@ bool actionPack()
         for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
         {
             std::vector<DatFileItem*>* items = it->second;
-            *datFile << (unsigned int) items->size() << (unsigned int) 0x5E << (unsigned int) 0x10 << (unsigned int) 0x0;
+            *datFile << (unsigned int) items->size() << (unsigned int) 0x2E << (unsigned int) 0x10 << (unsigned int) 0x0;
             for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
             {
                 DatFileItem* item = *it;
                 *datFile << (unsigned char) item->name().length() << item->name();
                 *datFile << (unsigned int) 0x20; // !NO COMPRESSION
-                *datFile << dataOffset << item->unpackedSize() << item->packedSize();
+                *datFile << dataOffset << item->unpackedSize() << (item->compressed() ? item->packedSize() : 0);
                 dataOffset += item->packedSize();
             }
         }
