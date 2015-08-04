@@ -1,20 +1,25 @@
 /*
- * Copyright 2012-2014 Falltergeist Developers.
+ * The MIT License (MIT)
  *
- * This file is part of Falltergeist.
+ * Copyright (c) 2012-2015 Falltergeist Developers
  *
- * Falltergeist is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * Falltergeist is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with Falltergeist.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 // C++ standard includes
@@ -26,22 +31,34 @@
 #include <dirent.h>
 #include <map>
 
-// Falltergeist includes
+// DatFile includes
+#include "defines.h"
 #include "DatFile.h"
 #include "DatFileItem.h"
 
 // Third party includes
 
-DatFile* datFile = 0;
-bool quietMode = false;
-std::string action, source, destination, error, format;
+using namespace DatFile;
+
+struct
+{
+    bool quietMode = false;
+    std::string action;
+    std::string source;
+    std::string destination;
+    std::string error;
+    Format format = Format::FALLOUT2;
+
+} options;
+
+DatFile::DatFile* datFile = 0;
 std::map<std::string, std::vector<DatFileItem*>*> filesList;
 
 void scanDirectory(std::string path)
 {
-    std::string shortPath = path.substr(source.length() + 1);
+    std::string shortPath = path.substr(options.source.length() + 1);
     if (shortPath != ".") shortPath = shortPath.substr(2);
-    filesList.insert(std::make_pair<std::string, std::vector<DatFileItem*>*>(shortPath, new std::vector<DatFileItem*>));
+    filesList.insert(std::pair<std::string, std::vector<DatFileItem*>*>(shortPath, new std::vector<DatFileItem*>));
 
     DIR *dir;
     struct dirent *ent;
@@ -82,24 +99,24 @@ void scanDirectory(std::string path)
 
 bool checkDatFile()
 {
-    if (source.length() == 0)
+    if (options.source.length() == 0)
     {
-        error = "Source file is not defined";
+        options.error = "Source file is not defined";
         return false;
     }
     std::ifstream stream;
-    stream.open(source.c_str(), std::ios::binary);
+    stream.open(options.source.c_str(), std::ios::binary);
     if (!stream.is_open())
     {
-        error = "Can't open source file: " + source;
+        options.error = "Can't open source file: " + options.source;
         return false;
     }
 
-    if (!datFile) datFile = new DatFile(source);
+    if (!datFile) datFile = new DatFile::DatFile(options.source);
 
     if (!datFile->version())
     {
-        error = source + " is not a DAT file";
+        options.error = options.source + " is not a DAT file";
         return false;
     }
     return true;
@@ -110,13 +127,13 @@ bool actionPack()
     // source - folder
     // destination - file
 
-    datFile = new DatFile(destination, true);
-    datFile->setVersion(format == "dat1" ? 1 : 2);
+    datFile = new DatFile::DatFile(options.destination, true);
+    datFile->setVersion(options.format);
     datFile->setItems(new std::vector<DatFileItem*>);
 
-    scanDirectory(source + "/.");
+    scanDirectory(options.source + "/.");
 
-    if (format == "dat2")
+    if (options.format == Format::FALLOUT2)
     {
         for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
         {
@@ -125,7 +142,7 @@ bool actionPack()
             for (std::vector<DatFileItem*>::iterator it = files->begin(); it != files->end(); ++it)
             {
                 DatFileItem* item = *it;
-                std::string path = source + "/" + directory + "/" + item->name();
+                std::string path = options.source + "/" + directory + "/" + item->name();
 
                 std::cout << directory << "/" << item->name() << std::endl;
 
@@ -170,7 +187,7 @@ bool actionPack()
         unsigned int dirTreeSize = datFile->position() - dirTreePosition;
         *datFile << dirTreeSize << (unsigned int) (datFile->position() + 8);
     }
-    else if (format == "dat1")
+    else if (options.format == Format::FALLOUT1)
     {
         *datFile << (unsigned int) filesList.size() << (unsigned int) 0x0A << (unsigned int) 0x0 << (unsigned int) 0x0;
         unsigned int dataOffset = 16;
@@ -214,7 +231,7 @@ bool actionPack()
             for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
             {
                 DatFileItem* item = *it;
-                std::string path = source + "/" + directory + "/" + item->name();
+                std::string path = options.source + "/" + directory + "/" + item->name();
 
                 std::cout << directory << "/" << item->name() << std::endl;
                 std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
@@ -236,22 +253,22 @@ bool actionUnpack()
     if (!checkDatFile()) return false;
 
     // check destination folder
-    if (destination.length() == 0)
+    if (options.destination.length() == 0)
     {
-        error = "Destination directory is not defined";
+        options.error = "Destination directory is not defined";
         return false;
     }
     else
     {
         struct stat info;
-        if(stat(destination.c_str(), &info) != 0)
+        if(stat(options.destination.c_str(), &info) != 0)
         {
-            error = "Destination directory does not exists: " + destination;
+            options.error = "Destination directory does not exists: " + options.destination;
             return false;
         }
         if(!info.st_mode & S_IFDIR )
         {
-            error = "Destination is not a directory: " + destination;
+            options.error = "Destination is not a directory: " + options.destination;
             return false;
         }
     }
@@ -261,13 +278,13 @@ bool actionUnpack()
         DatFileItem* item = *it;
 
         // rtrim
-        destination.erase(destination.find_last_not_of("/\\")+1);
+        options.destination.erase(options.destination.find_last_not_of("/\\")+1);
 
         std::string name = item->name();
         std::replace(name.begin(),name.end(),'\\','/');
         //std::transform(name.begin(),name.end(),name.begin(), ::tolower);
 
-        std::string basepath = destination + "/";
+        std::string basepath = options.destination + "/";
         std::string fullpath = basepath + name;
         std::string path = fullpath;
         std::string dirpath = "";
@@ -283,7 +300,7 @@ bool actionUnpack()
 
         }
 
-        if (!quietMode) std::cout << fullpath << std::endl;
+        if (!options.quietMode) std::cout << fullpath << std::endl;
         std::ofstream stream;
         stream.open(fullpath.c_str());
         stream.write((char*)item->data(), item->unpackedSize());
@@ -332,79 +349,85 @@ void actionHelp()
 }
 
 int main(int argc, char** argv)
-{
+{    
     for (int i = 0; i != argc; i++)
     {
         std::string argument = argv[i];
 
         if (argument == "--unpack" || argument == "-u")
         {
-            action = "unpack";
+            options.action = "unpack";
         }
         else if (argument == "--pack" || argument == "-p")
         {
-            action = "pack";
+            options.action = "pack";
         }
         else if (argument == "--list" || argument == "-l")
         {
-            action = "list";
+            options.action = "list";
         }
         else if (argument == "--version" || argument == "-v")
         {
-            action = "version";
+            options.action = "version";
         }
         else if (argument == "--format" || argument == "-f")
         {
             if (i < argc - 1)
             {
-                format = argv[i+1];
-                if (format == "dat1" || format == "dat2")
+                std::string format = argv[i+1];
+                if (format == "dat1")
                 {
                     i++;
+                    options.format = Format::FALLOUT1;
+                }
+                else if(format == "dat2")
+                {
+                    i++;
+                    options.format = Format::FALLOUT2;
                 }
                 else
                 {
-                    format = "";
-                    action = "format";
+                    options.format = Format::UNKNOWN;
+                    options.action = "format";
                 }
             }
             else
             {
-                action = "format";
+                options.action = "format";
             }
         }
         else if (argument == "--quiet" || argument == "-q")
         {
-            quietMode = true;
+            options.quietMode = true;
         }
         else if((argument == "--source" || argument == "-s") && (i < argc-1))
         {
-            source = argv[++i];
+            options.source = argv[++i];
         }
         else if((argument == "--destination" || argument == "-d") && (i < argc-1))
         {
-            destination = argv[++i];
+            options.destination = argv[++i];
         }
         else
         {
-            action = "help";
+            options.action = "help";
         }
     }
 
     bool result = true;
-    if (action == "unpack") result = actionUnpack();
-    if (action == "pack") result = actionPack();
-    if (action == "list") result = actionList();
-    if (action == "version") result = actionVersion();
-    if (action == "format") result = actionFormat();
+    if (options.action == "unpack") result = actionUnpack();
+    if (options.action == "pack") result = actionPack();
+    if (options.action == "list") result = actionList();
+    if (options.action == "version") result = actionVersion();
+    if (options.action == "format") result = actionFormat();
 
-    if (!result && quietMode) return 1;
+    if (!result && options.quietMode) return 1;
 
-    if (result == false || action == "help")
+    if (result == false || options.action == "help")
     {
         if (!result)
         {
-            std::cout << "[ERROR] " << error << std::endl;
+            std::cout << "[ERROR] " << options.error << std::endl;
         }
         actionHelp();
         return 1;

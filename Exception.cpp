@@ -22,49 +22,31 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_DATFILEITEM_H
-#define DATFILE_DATFILEITEM_H
-
 // C++ standard includes
-#include <string>
 
 // DatFile includes
+#include "Exception.h"
 
 // Third party includes
 
 namespace DatFile
 {
 
-class DatFile;
-
-class DatFileItem
+Exception::Exception(const char* message) : _message(message)
 {
-protected:
-    DatFile* _datFile;
-    unsigned char* _packedData;
-    unsigned char* _unpackedData;
-    std::string _name;
-    unsigned int _packedSize;
-    unsigned int _unpackedSize;
-    bool _compressed;
-    unsigned int _dataOffset;
-public:
-    DatFileItem(DatFile* datFile);
-    ~DatFileItem();
-    std::string name();
-    std::string extension();
-    unsigned int packedSize();
-    unsigned int unpackedSize();
-    bool compressed();
-    unsigned int dataOffset();
-    unsigned char* data();
-    void freeData();
-    DatFileItem* setPackedSize(unsigned int value);
-    DatFileItem* setUnpackedSize(unsigned int value);
-    DatFileItem* setDataOffset(unsigned int value);
-    DatFileItem* setCompressed(bool value);
-    DatFileItem* setName(std::string value);    
-};
+}
+
+Exception::Exception(const std::string& message) : _message(message)
+{
+}
+
+Exception::~Exception() throw()
+{
+}
+
+const char* Exception::what() const throw()
+{
+    return _message.c_str();
+}
 
 }
-#endif // DATFILE_DATFILEITEM_H

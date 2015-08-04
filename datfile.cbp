@@ -24,6 +24,14 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
+            <Add directory="/usr/include" />
+            <Add directory="/usr/include/c++/4.8" />
+            <Add directory="/usr/include/c++/4.8/backward" />
+            <Add directory="/usr/include/x86_64-linux-gnu" />
+            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
+            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 datfile" />
@@ -39,19 +47,17 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
+            <Add directory="/usr/include" />
+            <Add directory="/usr/include/c++/4.8" />
+            <Add directory="/usr/include/c++/4.8/backward" />
+            <Add directory="/usr/include/x86_64-linux-gnu" />
+            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
+            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 datfile/fast" />
-            <CompileFile command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 clean" />
-         </MakeCommands>
-      </Target>
-      <Target title="edit_cache">
-         <Option working_dir="/home/alexeevdv/datfile" />
-         <Option type="4" />
-         <MakeCommands>
-            <Build command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 edit_cache" />
             <CompileFile command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
             <Clean command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 clean" />
             <DistClean command="/usr/bin/make -f &quot;/home/alexeevdv/datfile/Makefile&quot;  VERBOSE=1 clean" />
@@ -72,6 +78,8 @@
       </Unit>
       <Unit filename="/home/alexeevdv/datfile/DatFileItem.cpp">
       </Unit>
+      <Unit filename="/home/alexeevdv/datfile/Exception.cpp">
+      </Unit>
       <Unit filename="/home/alexeevdv/datfile/LZSS.cpp">
       </Unit>
       <Unit filename="/home/alexeevdv/datfile/main.cpp">
@@ -79,6 +87,8 @@
       <Unit filename="/home/alexeevdv/datfile/DatFile.h">
       </Unit>
       <Unit filename="/home/alexeevdv/datfile/DatFileItem.h">
+      </Unit>
+      <Unit filename="/home/alexeevdv/datfile/Exception.h">
       </Unit>
       <Unit filename="/home/alexeevdv/datfile/LZSS.h">
       </Unit>

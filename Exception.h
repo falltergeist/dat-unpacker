@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_DATFILEITEM_H
-#define DATFILE_DATFILEITEM_H
+#ifndef DATFILE_EXCEPTION_H
+#define DATFILE_EXCEPTION_H
 
 // C++ standard includes
+#include <exception>
 #include <string>
 
 // DatFile includes
@@ -35,36 +36,16 @@
 namespace DatFile
 {
 
-class DatFile;
-
-class DatFileItem
+class Exception : std::exception
 {
-protected:
-    DatFile* _datFile;
-    unsigned char* _packedData;
-    unsigned char* _unpackedData;
-    std::string _name;
-    unsigned int _packedSize;
-    unsigned int _unpackedSize;
-    bool _compressed;
-    unsigned int _dataOffset;
+private:
+    std::string _message;
 public:
-    DatFileItem(DatFile* datFile);
-    ~DatFileItem();
-    std::string name();
-    std::string extension();
-    unsigned int packedSize();
-    unsigned int unpackedSize();
-    bool compressed();
-    unsigned int dataOffset();
-    unsigned char* data();
-    void freeData();
-    DatFileItem* setPackedSize(unsigned int value);
-    DatFileItem* setUnpackedSize(unsigned int value);
-    DatFileItem* setDataOffset(unsigned int value);
-    DatFileItem* setCompressed(bool value);
-    DatFileItem* setName(std::string value);    
+    explicit Exception(const char* message);
+    explicit Exception(const std::string& message);
+    virtual ~Exception() throw();
+    virtual const char* what() const throw();
 };
 
 }
-#endif // DATFILE_DATFILEITEM_H
+#endif // DATFILE_EXCEPTION_H
