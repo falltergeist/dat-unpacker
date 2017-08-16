@@ -22,7 +22,7 @@
 # SOFTWARE.
 #
 
-project(datfile)
+project(dat-unpacker)
 
 add_definitions (-std=c++11 -Wall)
 

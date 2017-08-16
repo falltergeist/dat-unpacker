@@ -54,30 +54,26 @@ struct
 DatFile::DatFile* datFile = 0;
 std::map<std::string, std::vector<DatFileItem*>*> filesList;
 
-void scanDirectory(std::string path)
-{
+void scanDirectory(std::string path) {
     std::string shortPath = path.substr(options.source.length() + 1);
-    if (shortPath != ".") shortPath = shortPath.substr(2);
+    if (shortPath != ".") {
+        shortPath = shortPath.substr(2);
+    }
     filesList.insert(std::pair<std::string, std::vector<DatFileItem*>*>(shortPath, new std::vector<DatFileItem*>));
 
     DIR *dir;
     struct dirent *ent;
-    if ((dir = opendir (path.c_str())) != NULL)
-    {
-        while ((ent = readdir (dir)) != NULL)
-        {
+    if ((dir = opendir (path.c_str())) != NULL) {
+        while ((ent = readdir (dir)) != NULL) {
             std::string name = ent->d_name;
             if (name == "." || name == "..") continue;
             struct stat s;
             std::string newpath = path + "/" + name;
             stat(newpath.c_str(), &s);
-            if (s.st_mode & S_IFDIR)
-            {
+            if (s.st_mode & S_IFDIR) {
                 //directories.push_back(newpath.substr(source.length() + 1));
                 scanDirectory(newpath);
-            }
-            else
-            {
+            } else {
                 DatFileItem* item = new DatFileItem(0);
                 item->setName(name);
                 item->setPackedSize(s.st_size);
@@ -86,195 +82,59 @@ void scanDirectory(std::string path)
             }
         }
         closedir (dir);
-        if (filesList.at(shortPath)->size() == 0)
-        {
+        if (filesList.at(shortPath)->size() == 0) {
             filesList.erase(shortPath);
         }
-    }
-    else
-    {
+    } else {
         std::cout << "could not open directory: " << path << std::endl;
     }
 }
 
-bool checkDatFile()
-{
-    if (options.source.length() == 0)
-    {
+bool checkDatFile() {
+    if (options.source.length() == 0) {
         options.error = "Source file is not defined";
         return false;
     }
     std::ifstream stream;
     stream.open(options.source.c_str(), std::ios::binary);
-    if (!stream.is_open())
-    {
+    if (!stream.is_open()) {
         options.error = "Can't open source file: " + options.source;
         return false;
     }
 
-    if (!datFile) datFile = new DatFile::DatFile(options.source);
+    if (!datFile) {
+        datFile = new DatFile::DatFile(options.source);
+    }
 
-    if (!datFile->version())
-    {
+    if (!datFile->version()) {
         options.error = options.source + " is not a DAT file";
         return false;
     }
     return true;
 }
 
-bool actionPack()
-{
-    // source - folder
-    // destination - file
-
-    datFile = new DatFile::DatFile(options.destination, true);
-    datFile->setVersion(options.format);
-    datFile->setItems(new std::vector<DatFileItem*>);
-
-    scanDirectory(options.source + "/.");
-
-    if (options.format == Format::FALLOUT2)
-    {
-        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
-        {
-            std::string directory = it->first;
-            std::vector<DatFileItem*>* files = it->second;
-            for (std::vector<DatFileItem*>::iterator it = files->begin(); it != files->end(); ++it)
-            {
-                DatFileItem* item = *it;
-                std::string path = options.source + "/" + directory + "/" + item->name();
-
-                std::cout << directory << "/" << item->name() << std::endl;
-
-                item->setDataOffset(datFile->position());
-                std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
-                unsigned char* buffer = new unsigned char[item->unpackedSize()];
-                stream.read((char*)buffer, item->unpackedSize());
-                datFile->writeBytes(buffer, item->unpackedSize());
-                delete [] buffer;
-                stream.close();
-
-                std::string newName = directory + "/" + item->name();
-                std::replace(newName.begin(),newName.end(),'/','\\');
-
-                // Replace slashes and transform to lower case
-                //std::replace(newName.begin(),newName.end(),'\\','/');
-                //std::transform(newName.begin(),newName.end(),newName.begin(), ::tolower);
-                item->setName(newName);
-
-                datFile->items()->push_back(item);
-            }
-        }
-        unsigned int dirTreePosition = datFile->position();
-
-        unsigned int filesTotal = datFile->items()->size();
-        *datFile << filesTotal;
-
-        for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it)
-        {
-            DatFileItem* item = *it;
-            unsigned char compression = 0;
-
-            if (item->name()[0] == '.')
-            {
-                item->setName(item->name().substr(2));
-            }
-
-
-            *datFile << (unsigned int) item->name().length() << item->name() << compression << item->unpackedSize() << item->packedSize() << item->dataOffset();
-        }
-
-        unsigned int dirTreeSize = datFile->position() - dirTreePosition;
-        *datFile << dirTreeSize << (unsigned int) (datFile->position() + 8);
-    }
-    else if (options.format == Format::FALLOUT1)
-    {
-        *datFile << (unsigned int) filesList.size() << (unsigned int) 0x0A << (unsigned int) 0x0 << (unsigned int) 0x0;
-        unsigned int dataOffset = 16;
-        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
-        {
-            std::string directory = it->first;
-            std::replace(directory.begin(),directory.end(),'/','\\');
-            *datFile << (unsigned char) directory.length() << directory;
-            dataOffset += 1 + directory.length();
-        }
-
-        // Calculating header size
-        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
-        {
-            dataOffset += 16;
-            std::vector<DatFileItem*>* items = it->second;
-            for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
-            {
-                dataOffset += 17 + (*it)->name().length();
-            }
-        }
-
-        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
-        {
-            std::vector<DatFileItem*>* items = it->second;
-            *datFile << (unsigned int) items->size() << (unsigned int) 0x2E << (unsigned int) 0x10 << (unsigned int) 0x0;
-            for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
-            {
-                DatFileItem* item = *it;
-                *datFile << (unsigned char) item->name().length() << item->name();
-                *datFile << (unsigned int) 0x20; // !NO COMPRESSION
-                *datFile << dataOffset << item->unpackedSize() << (item->compressed() ? item->packedSize() : 0);
-                dataOffset += item->packedSize();
-            }
-        }
-
-        for (std::map<std::string, std::vector<DatFileItem*>*>::iterator it = filesList.begin(); it != filesList.end(); ++it)
-        {
-            std::string directory = it->first;
-            std::vector<DatFileItem*>* items = it->second;
-            for (std::vector<DatFileItem*>::iterator it = items->begin(); it != items->end(); ++it)
-            {
-                DatFileItem* item = *it;
-                std::string path = options.source + "/" + directory + "/" + item->name();
-
-                std::cout << directory << "/" << item->name() << std::endl;
-                std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
-                unsigned char* buffer = new unsigned char[item->unpackedSize()];
-                stream.read((char*)buffer, item->unpackedSize());
-                datFile->writeBytes(buffer, item->unpackedSize());
-                delete [] buffer;
-                stream.close();
-            }
-        }
-
-
-    }
-    return true;
-}
-
-bool actionUnpack()
-{
-    if (!checkDatFile()) return false;
-
-    // check destination folder
-    if (options.destination.length() == 0)
-    {
-        options.error = "Destination directory is not defined";
+bool actionUnpack() {
+    if (!checkDatFile()) {
         return false;
     }
-    else
-    {
+
+    // check destination folder
+    if (options.destination.length() == 0) {
+        options.error = "Destination directory is not defined";
+        return false;
+    } else {
         struct stat info;
-        if(stat(options.destination.c_str(), &info) != 0)
-        {
+        if(stat(options.destination.c_str(), &info) != 0) {
             options.error = "Destination directory does not exists: " + options.destination;
             return false;
         }
-        if(!info.st_mode & S_IFDIR )
-        {
+        if(!(info.st_mode & S_IFDIR)) {
             options.error = "Destination is not a directory: " + options.destination;
             return false;
         }
     }
     // extract items
-    for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it)
-    {
+    for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it) {
         DatFileItem* item = *it;
 
         // rtrim
@@ -288,8 +148,7 @@ bool actionUnpack()
         std::string fullpath = basepath + name;
         std::string path = fullpath;
         std::string dirpath = "";
-        while (path.find('/') != std::string::npos)
-        {
+        while (path.find('/') != std::string::npos) {
             unsigned int pos = path.find('/');
             dirpath += path.substr(0, pos) + "/";
             path = path.substr(pos + 1);
@@ -297,10 +156,11 @@ bool actionUnpack()
             #ifdef __unix__
                 mkdir(dirpath.substr(0, dirpath.length()-1).c_str(), 0755);
             #endif
-
         }
 
-        if (!options.quietMode) std::cout << fullpath << std::endl;
+        if (!options.quietMode) {
+            std::cout << fullpath << std::endl;
+        }
         std::ofstream stream;
         stream.open(fullpath.c_str());
         stream.write((char*)item->data(), item->unpackedSize());
@@ -310,33 +170,28 @@ bool actionUnpack()
     return true;
 }
 
-bool actionList()
-{
+bool actionList() {
     if (!checkDatFile()) return false;
-    for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it)
-    {
+    for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it) {
         DatFileItem* item = *it;
         std::cout << item->name() << std::endl;
     }
     return true;
 }
 
-bool actionFormat()
-{
+bool actionFormat() {
     if (!checkDatFile()) return false;
     std::cout << "dat" << datFile->version() << std::endl;
     return true;
 }
 
-bool actionVersion()
-{
-    std::cout << "0.0.1" << std::endl;
+bool actionVersion() {
+    std::cout << "0.0.2" << std::endl;
     return true;
 }
 
-void actionHelp()
-{
-    std::cout << "Usage: datfile [arguments]" << std::endl;
+void actionHelp() {
+    std::cout << "Usage: dat-unpacker [arguments]" << std::endl;
     std::cout << std::endl;
     std::cout << "Arguments:" << std::endl;
     std::cout << "  --list, -l list  DAT file items" << std::endl;
@@ -348,85 +203,62 @@ void actionHelp()
     std::cout << "  --destination, -d path to extract files" << std::endl;
 }
 
-int main(int argc, char** argv)
-{    
-    for (int i = 0; i != argc; i++)
-    {
+int main(int argc, char** argv) {
+
+    for (int i = 0; i != argc; i++) {
         std::string argument = argv[i];
 
-        if (argument == "--unpack" || argument == "-u")
-        {
-            options.action = "unpack";
-        }
-        else if (argument == "--pack" || argument == "-p")
-        {
-            options.action = "pack";
-        }
-        else if (argument == "--list" || argument == "-l")
-        {
+        if (argument == "--list" || argument == "-l") {
             options.action = "list";
-        }
-        else if (argument == "--version" || argument == "-v")
-        {
+        } else if (argument == "--version" || argument == "-v") {
             options.action = "version";
-        }
-        else if (argument == "--format" || argument == "-f")
-        {
-            if (i < argc - 1)
-            {
+        } else if (argument == "--format" || argument == "-f") {
+            if (i < argc - 1) {
                 std::string format = argv[i+1];
-                if (format == "dat1")
-                {
+                if (format == "dat1") {
                     i++;
                     options.format = Format::FALLOUT1;
-                }
-                else if(format == "dat2")
-                {
+                } else if(format == "dat2") {
                     i++;
                     options.format = Format::FALLOUT2;
-                }
-                else
-                {
+                } else {
                     options.format = Format::UNKNOWN;
                     options.action = "format";
                 }
-            }
-            else
-            {
+            } else {
                 options.action = "format";
             }
-        }
-        else if (argument == "--quiet" || argument == "-q")
-        {
+        } else if (argument == "--quiet" || argument == "-q") {
             options.quietMode = true;
-        }
-        else if((argument == "--source" || argument == "-s") && (i < argc-1))
-        {
+        } else if((argument == "--source" || argument == "-s") && (i < argc-1)) {
             options.source = argv[++i];
-        }
-        else if((argument == "--destination" || argument == "-d") && (i < argc-1))
-        {
+        } else if((argument == "--destination" || argument == "-d") && (i < argc-1)) {
             options.destination = argv[++i];
-        }
-        else
-        {
+        } else {
             options.action = "help";
         }
     }
 
-    bool result = true;
-    if (options.action == "unpack") result = actionUnpack();
-    if (options.action == "pack") result = actionPack();
-    if (options.action == "list") result = actionList();
-    if (options.action == "version") result = actionVersion();
-    if (options.action == "format") result = actionFormat();
+    bool result;
 
-    if (!result && options.quietMode) return 1;
+    if (options.action == "unpack") {
+        result = actionUnpack();
+    } else if (options.action == "list") {
+        result = actionList();
+    } else if (options.action == "version") {
+        result = actionVersion();
+    } else if (options.action == "format") {
+        result = actionFormat();
+    } else {
+        result = actionUnpack();
+    }
 
-    if (result == false || options.action == "help")
-    {
-        if (!result)
-        {
+    if (!result && options.quietMode) {
+        return 1;
+    }
+
+    if (!result || options.action == "help") {
+        if (options.error.length()) {
             std::cout << "[ERROR] " << options.error << std::endl;
         }
         actionHelp();
