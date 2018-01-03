@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2015 Falltergeist Developers
+ * Copyright (c) 2012-2018 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,25 +22,30 @@
  * SOFTWARE.
  */
 
+#ifndef DATFILE_EXCEPTION_H
+#define DATFILE_EXCEPTION_H
+
 // C++ standard includes
+#include <exception>
+#include <string>
 
 // DatFile includes
-#include "Archive.h"
-#include "ArchiveEntry.h"
 
 // Third party includes
 
 namespace DatFile
 {
 
-ArchiveEntry::ArchiveEntry(Archive* archive)
+class Exception : std::exception
 {
-    _archive = archive;
-}
+private:
+    std::string _message;
+public:
+    explicit Exception(const char* message);
+    explicit Exception(const std::string& message);
+    virtual ~Exception() throw();
+    virtual const char* what() const throw();
+};
 
-Archive* ArchiveEntry::archive() const
-{
-    return _archive;
 }
-
-}
+#endif // DATFILE_EXCEPTION_H

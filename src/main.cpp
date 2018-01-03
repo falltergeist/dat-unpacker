@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2015 Falltergeist Developers
+ * Copyright (c) 2012-2018 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -185,17 +185,12 @@ bool actionFormat() {
     return true;
 }
 
-bool actionVersion() {
-    std::cout << "0.0.2" << std::endl;
-    return true;
-}
-
 void actionHelp() {
+    std::cout << "DAT unpacker for Fallout 1/2 v0.0.3" << std::endl;
     std::cout << "Usage: dat-unpacker [arguments]" << std::endl;
     std::cout << std::endl;
     std::cout << "Arguments:" << std::endl;
     std::cout << "  --list, -l list  DAT file items" << std::endl;
-    std::cout << "  --version, -v program version" << std::endl;
     std::cout << "  --format, -f DAT file format" << std::endl;
     std::cout << "  --quiet, -q quite mode. Do not display anything" << std::endl;
     std::cout << "  --unpack, -u unpack DAT file" << std::endl;
@@ -210,8 +205,6 @@ int main(int argc, char** argv) {
 
         if (argument == "--list" || argument == "-l") {
             options.action = "list";
-        } else if (argument == "--version" || argument == "-v") {
-            options.action = "version";
         } else if (argument == "--format" || argument == "-f") {
             if (i < argc - 1) {
                 std::string format = argv[i+1];
@@ -245,8 +238,6 @@ int main(int argc, char** argv) {
         result = actionUnpack();
     } else if (options.action == "list") {
         result = actionList();
-    } else if (options.action == "version") {
-        result = actionVersion();
     } else if (options.action == "format") {
         result = actionFormat();
     } else {

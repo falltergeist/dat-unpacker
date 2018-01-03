@@ -8,3 +8,4 @@ datfile
 *.cbp
 *.dat
 .idea
+/cmake-build-debug

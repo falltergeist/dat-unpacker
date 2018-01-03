@@ -1,0 +1,15 @@
+Source: dat-unpacker
+Section: utils
+Priority: optional
+Maintainer: Dmitry V. Alexeev <mail@alexeevdv.ru>
+Build-Depends: debhelper (>=9), cmake (>=2.8), libz-dev
+Standards-Version: 3.9.6
+Homepage: https://github.com/falltergeist/dat-unpacker
+Vcs-Git: git://github.com/falltergeist/dat-unpacker.git
+Vcs-Browser: https://github.com/falltergeist/dat-unpacker.git
+
+Package: dat-unpacker
+Architecture: any
+Depends: libz
+Description: DAT unpacker for Fallout 1/2
+ DAT unpacker for Fallout 1/2

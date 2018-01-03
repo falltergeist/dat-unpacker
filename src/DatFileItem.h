@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2015 Falltergeist Developers
+ * Copyright (c) 2012-2018 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_ARCHIVEENTRY_H
-#define DATFILE_ARCHIVEENTRY_H
+#ifndef DATFILE_DATFILEITEM_H
+#define DATFILE_DATFILEITEM_H
 
 // C++ standard includes
+#include <string>
 
 // DatFile includes
 
@@ -33,19 +34,37 @@
 
 namespace DatFile
 {
-class Archive;
 
-class ArchiveEntry
+class DatFile;
+
+class DatFileItem
 {
+protected:
+    DatFile* _datFile;
+    unsigned char* _packedData;
+    unsigned char* _unpackedData;
+    std::string _name;
+    unsigned int _packedSize;
+    unsigned int _unpackedSize;
+    bool _compressed;
+    unsigned int _dataOffset;
 public:
-    ArchiveEntry(Archive* archive);
-    ~ArchiveEntry();
-
-    Archive* archive() const;
-
-private:
-    Archive* _archive;
+    DatFileItem(DatFile* datFile);
+    ~DatFileItem();
+    std::string name();
+    std::string extension();
+    unsigned int packedSize();
+    unsigned int unpackedSize();
+    bool compressed();
+    unsigned int dataOffset();
+    unsigned char* data();
+    void freeData();
+    DatFileItem* setPackedSize(unsigned int value);
+    DatFileItem* setUnpackedSize(unsigned int value);
+    DatFileItem* setDataOffset(unsigned int value);
+    DatFileItem* setCompressed(bool value);
+    DatFileItem* setName(std::string value);    
 };
 
 }
-#endif // DATFILE_ARCHIVEENTRY_H
+#endif // DATFILE_DATFILEITEM_H

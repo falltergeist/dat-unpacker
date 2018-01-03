@@ -1,0 +1,15 @@
+os:
+  - linux
+  - osx
+
+language: cpp
+sudo: required
+dist: trusty
+
+script:
+  - cmake .
+  - make -j2
+
+compiler:
+  - clang
+  - gcc

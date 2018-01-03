@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2015 Falltergeist Developers
+ * Copyright (c) 2012-2018 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,23 @@
  * SOFTWARE.
  */
 
+#ifndef DATFILE_LZSS_H
+#define DATFILE_LZSS_H
+
 // C++ standard includes
 
 // DatFile includes
-#include "Exception.h"
 
 // Third party includes
 
 namespace DatFile
 {
 
-Exception::Exception(const char* message) : _message(message)
+class LZSS
 {
-}
-
-Exception::Exception(const std::string& message) : _message(message)
-{
-}
-
-Exception::~Exception() throw()
-{
-}
-
-const char* Exception::what() const throw()
-{
-    return _message.c_str();
-}
+public:
+    static void decompress(unsigned char* input, unsigned int inputSize, unsigned char* output, unsigned int outputSize);
+};
 
 }
+#endif // DATFILE_LZSS_H

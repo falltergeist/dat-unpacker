@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2015 Falltergeist Developers
+ * Copyright (c) 2012-2018 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,10 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_ARCHIVE_H
-#define DATFILE_ARCHIVE_H
+#ifndef DATFILE_ARCHIVEENTRY_H
+#define DATFILE_ARCHIVEENTRY_H
 
 // C++ standard includes
-#include <string>
-#include <vector>
 
 // DatFile includes
 
@@ -35,22 +33,19 @@
 
 namespace DatFile
 {
-class ArchiveEntry;
+class Archive;
 
-class Archive
+class ArchiveEntry
 {
 public:
-    Archive(std::string filename);
-    ~Archive();
+    ArchiveEntry(Archive* archive);
+    ~ArchiveEntry();
 
-    std::string filename() const;
-
-    std::vector<ArchiveEntry*>* entries();
+    Archive* archive() const;
 
 private:
-    std::string _filename;
-    std::vector<ArchiveEntry*> _entries;
+    Archive* _archive;
 };
 
 }
-#endif // DATFILE_ARCHIVE_H
+#endif // DATFILE_ARCHIVEENTRY_H
