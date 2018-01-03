@@ -35,17 +35,15 @@
 
 namespace DatFile
 {
-
-class Exception : std::exception
-{
-private:
-    std::string _message;
-public:
-    explicit Exception(const char* message);
-    explicit Exception(const std::string& message);
-    virtual ~Exception() throw();
-    virtual const char* what() const throw();
-};
-
+    class Exception : std::exception
+    {
+        public:
+            explicit Exception(const char* message);
+            explicit Exception(const std::string& message);
+            virtual ~Exception() throw();
+            virtual const char* what() const throw();
+        private:
+            std::string _message;
+    };
 }
 #endif // DATFILE_EXCEPTION_H

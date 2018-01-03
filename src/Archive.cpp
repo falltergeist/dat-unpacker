@@ -31,20 +31,18 @@
 
 namespace DatFile
 {
+    Archive::Archive(std::string filename)
+    {
+        _filename = filename;
+    }
 
-Archive::Archive(std::string filename)
-{    
-    _filename = filename;
-}
+    std::vector<ArchiveEntry*>* Archive::entries()
+    {
+        return &_entries;
+    }
 
-std::vector<ArchiveEntry*>* Archive::entries()
-{
-    return &_entries;
-}
-
-std::string Archive::filename() const
-{
-    return _filename;
-}
-
+    std::string Archive::filename() const
+    {
+        return _filename;
+    }
 }

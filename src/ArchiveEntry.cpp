@@ -32,15 +32,13 @@
 
 namespace DatFile
 {
+    ArchiveEntry::ArchiveEntry(Archive* archive)
+    {
+        _archive = archive;
+    }
 
-ArchiveEntry::ArchiveEntry(Archive* archive)
-{
-    _archive = archive;
-}
-
-Archive* ArchiveEntry::archive() const
-{
-    return _archive;
-}
-
+    Archive* ArchiveEntry::archive() const
+    {
+        return _archive;
+    }
 }

@@ -17,8 +17,8 @@
  * along with Falltergeist.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEFINES_HPP
-#define DEFINES_HPP
+#ifndef DEFINES_H
+#define DEFINES_H
 
 // C++ standard includes
 
@@ -33,6 +33,4 @@ enum Format
     FALLOUT2
 };
 
-
-
-#endif // DEFINES_HPP
+#endif // DEFINES_H

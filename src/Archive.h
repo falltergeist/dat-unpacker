@@ -35,22 +35,21 @@
 
 namespace DatFile
 {
-class ArchiveEntry;
+    class ArchiveEntry;
 
-class Archive
-{
-public:
-    Archive(std::string filename);
-    ~Archive();
+    class Archive
+    {
+        public:
+            Archive(std::string filename);
+            ~Archive();
 
-    std::string filename() const;
+            std::string filename() const;
 
-    std::vector<ArchiveEntry*>* entries();
+            std::vector<ArchiveEntry*>* entries();
 
-private:
-    std::string _filename;
-    std::vector<ArchiveEntry*> _entries;
-};
-
+        private:
+            std::string _filename;
+            std::vector<ArchiveEntry*> _entries;
+    };
 }
 #endif // DATFILE_ARCHIVE_H

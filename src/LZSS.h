@@ -33,12 +33,10 @@
 
 namespace DatFile
 {
-
-class LZSS
-{
-public:
-    static void decompress(unsigned char* input, unsigned int inputSize, unsigned char* output, unsigned int outputSize);
-};
-
+    class LZSS
+    {
+        public:
+            static void decompress(unsigned char* input, unsigned int inputSize, unsigned char* output, unsigned int outputSize);
+    };
 }
 #endif // DATFILE_LZSS_H

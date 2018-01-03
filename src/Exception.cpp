@@ -31,22 +31,20 @@
 
 namespace DatFile
 {
+    Exception::Exception(const char* message) : _message(message)
+    {
+    }
 
-Exception::Exception(const char* message) : _message(message)
-{
-}
+    Exception::Exception(const std::string& message) : _message(message)
+    {
+    }
 
-Exception::Exception(const std::string& message) : _message(message)
-{
-}
+    Exception::~Exception() throw()
+    {
+    }
 
-Exception::~Exception() throw()
-{
-}
-
-const char* Exception::what() const throw()
-{
-    return _message.c_str();
-}
-
+    const char* Exception::what() const throw()
+    {
+        return _message.c_str();
+    }
 }

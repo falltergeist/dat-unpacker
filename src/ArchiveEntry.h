@@ -33,19 +33,18 @@
 
 namespace DatFile
 {
-class Archive;
+    class Archive;
 
-class ArchiveEntry
-{
-public:
-    ArchiveEntry(Archive* archive);
-    ~ArchiveEntry();
+    class ArchiveEntry
+    {
+        public:
+            ArchiveEntry(Archive* archive);
+            ~ArchiveEntry();
 
-    Archive* archive() const;
+            Archive* archive() const;
 
-private:
-    Archive* _archive;
-};
-
+        private:
+            Archive* _archive;
+    };
 }
 #endif // DATFILE_ARCHIVEENTRY_H

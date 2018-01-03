@@ -22,7 +22,7 @@ Dependencies:
 -------------
 
 - CMake (>= 2.8)
-- libz-dev (>= 1.2)
+- zlib1g-dev (>= 1.2)
 
 Build:
 

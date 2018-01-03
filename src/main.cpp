@@ -186,7 +186,7 @@ bool actionFormat() {
 }
 
 void actionHelp() {
-    std::cout << "DAT unpacker for Fallout 1/2 v0.0.3" << std::endl;
+    std::cout << "DAT unpacker for Fallout 1/2 v0.0.4" << std::endl;
     std::cout << "Usage: dat-unpacker [arguments]" << std::endl;
     std::cout << std::endl;
     std::cout << "Arguments:" << std::endl;
