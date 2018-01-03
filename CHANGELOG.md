@@ -1,4 +1,7 @@
-0.0.4 Under development
+0.0.5 Under development
+-----------------------
+
+0.0.4 (2018-01-03)
 -----------------------
 - Fix for debian packaging zlib dependency (alexeevdv)
 
