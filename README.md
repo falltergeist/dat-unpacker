@@ -1,7 +1,7 @@
 dat-unpacker [![Build Status](https://travis-ci.org/falltergeist/dat-unpacker.svg?branch=develop)](https://travis-ci.org/falltergeist/dat-unpacker)
 ===
 
-Console utility to unpack Fallout or Fallout 2 game data files
+Console utility to unpack Fallout 1 or Fallout 2 DAT files
 
 Installation:
 =============
@@ -34,12 +34,14 @@ Usage
 ===
 ```
 Usage: dat-unpacker [arguments]
+Example: dat-unpacker -f dat1 -s ~/fallout1/master.dat -d ~/unpacked
 
 Arguments:
-    --list, -l list  DAT file items
-    --version, -v program version
-    --format, -f DAT file format
-    --quiet, -q quite mode. Do not display anything
-    --unpack, -u unpack DAT file
-    --source, -s path to DAT file
-    --destination, -d path to extract files
+  --format, -f        Fallout DAT file format version. 'dat1' or 'dat2'. 'dat2' is default
+                      Possible values are: 'dat1', 'dat2'.
+                      (Defaults to 'dat2')
+  --quiet, -q         Quite mode. Do not display anything
+  --transform, -t     Transform file names to lowercase
+  --source, -s        Path to the DAT file
+  --destination, -d   Where to extract files
+```
