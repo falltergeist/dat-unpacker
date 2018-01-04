@@ -1,4 +1,7 @@
-0.0.5 Under development
+0.0.6 Under development
+-----------------------
+
+0.0.5 (2018-01-04)
 -----------------------
 - Option to transform file names to lowercase (alexeevdv)
 - Destination path will be created if not exist (alexeevdv)
