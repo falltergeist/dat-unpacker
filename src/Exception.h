@@ -22,18 +22,18 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_EXCEPTION_H
-#define DATFILE_EXCEPTION_H
+#ifndef DATUNPACKER_EXCEPTION_H
+#define DATUNPACKER_EXCEPTION_H
 
 // C++ standard includes
 #include <exception>
 #include <string>
 
-// DatFile includes
+// DatUnpacker includes
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
     class Exception : std::exception
     {
@@ -46,4 +46,4 @@ namespace DatFile
             std::string _message;
     };
 }
-#endif // DATFILE_EXCEPTION_H
+#endif // DATUNPACKER_EXCEPTION_H

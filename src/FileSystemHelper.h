@@ -22,29 +22,30 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_ARCHIVEENTRY_H
-#define DATFILE_ARCHIVEENTRY_H
+#ifndef DATUNPACKER_FILESYSTEMHELPER_H
+#define DATUNPACKER_FILESYSTEMHELPER_H
 
 // C++ standard includes
+#include <string>
+#include <vector>
 
-// DatFile includes
+// DatUnpacker includes
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
-    class Archive;
-
-    class ArchiveEntry
+    class FileSystemHelper
     {
         public:
-            ArchiveEntry(Archive* archive);
-            ~ArchiveEntry();
-
-            Archive* archive() const;
-
-        private:
-            Archive* _archive;
+            FileSystemHelper() = default;
+            bool isExist(const std::string& path) const;
+            bool isFile(const std::string& path) const;
+            bool isDirectory(const std::string& path) const;
+            bool createDirectory(const std::string& path, unsigned mode);
+            bool createDirectoryRecursive(const std::string& path, unsigned mode);
+            std::vector<std::string> splitPath(const std::string& path);
     };
 }
-#endif // DATFILE_ARCHIVEENTRY_H
+
+#endif //DATUNPACKER_FILESYSTEMHELPER_H

@@ -22,19 +22,19 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_DATFILE_H
-#define DATFILE_DATFILE_H
+#ifndef DATUNPACKER_DATFILE_H
+#define DATUNPACKER_DATFILE_H
 
 // C++ standard includes
 #include <vector>
 #include <string>
 #include <fstream>
 
-// DatFile includes
+// DatUnpacker includes
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
     class DatFileItem;
 
@@ -90,4 +90,4 @@ namespace DatFile
             DatFile& operator>>(std::string &value);
     };
 }
-#endif // DATFILE_DATFILE_H
+#endif // DATUNPACKER_DATFILE_H

@@ -17,20 +17,21 @@
  * along with Falltergeist.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEFINES_H
-#define DEFINES_H
+#ifndef DATUNPACKER_FORMAT_H
+#define DATUNPACKER_FORMAT_H
 
 // C++ standard includes
 
-// Falltergeist includes
+// DatUnpacker includes
 
 // Third party includes
 
-enum Format
+namespace DatUnpacker
 {
-    UNKNOWN = 0,
-    FALLOUT1,
-    FALLOUT2
-};
-
-#endif // DEFINES_H
+    enum class Format {
+        UNKNOWN = 0,
+        FALLOUT1,
+        FALLOUT2
+    };
+}
+#endif // DATUNPACKER_FORMAT_H

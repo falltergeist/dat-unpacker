@@ -24,12 +24,12 @@
 
 // C++ standard includes
 
-// DatFile includes
+// DatUnpacker includes
 #include "Exception.h"
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
     Exception::Exception(const char* message) : _message(message)
     {

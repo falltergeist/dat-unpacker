@@ -24,7 +24,7 @@
 
 // C++ standard includes
 
-// DatFile includes
+// DatUnpacker includes
 #include "DatFileItem.h"
 #include "DatFile.h"
 #include "LZSS.h"
@@ -32,7 +32,7 @@
 // Third party includes
 #include "zlib.h"
 
-namespace DatFile
+namespace DatUnpacker
 {
     DatFileItem::DatFileItem(DatFile* datFile)
     {

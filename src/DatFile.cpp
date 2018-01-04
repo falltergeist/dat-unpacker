@@ -26,13 +26,13 @@
 #include <iostream>
 #include <algorithm>
 
-// DatFile includes
+// DatUnpacker includes
 #include "DatFile.h"
 #include "DatFileItem.h"
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
     DatFile::DatFile(std::string filename, bool write)
     {

@@ -22,27 +22,32 @@
  * SOFTWARE.
  */
 
-// C++ standard includes
+#ifndef DATUNPACKER_DATFILEUNPACKER_H
+#define DATUNPACKER_DATFILEUNPACKER_H
 
-// DatFile includes
-#include "Archive.h"
+// C++ standard includes
+#include <string>
+
+// DatUnpacker includes
+#include "Arguments.h"
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
-    Archive::Archive(std::string filename)
-    {
-        _filename = filename;
-    }
+    class DatFile;
 
-    std::vector<ArchiveEntry*>* Archive::entries()
+    class DatFileUnpacker
     {
-        return &_entries;
-    }
+        public:
+            DatFileUnpacker() = default;
+            bool unpack(const Arguments& arguments);
+            std::string getErrorMessage() const;
+            bool checkDatFile(const DatFile& datFile, const Arguments& arguments);
 
-    std::string Archive::filename() const
-    {
-        return _filename;
-    }
+        private:
+            std::string _errorMessage;
+    };
 }
+
+#endif //DATUNPACKER_DATFILEUNPACKER_H

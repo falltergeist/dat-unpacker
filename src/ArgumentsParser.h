@@ -22,21 +22,24 @@
  * SOFTWARE.
  */
 
-#ifndef DATUNPACKER_LZSS_H
-#define DATUNPACKER_LZSS_H
+#ifndef DATUNPACKER_ARGUMENTSPARSER_H
+#define DATUNPACKER_ARGUMENTSPARSER_H
 
 // C++ standard includes
 
 // DatUnpacker includes
+#include "Arguments.h"
 
 // Third party includes
 
 namespace DatUnpacker
 {
-    class LZSS
+    class ArgumentsParser
     {
         public:
-            static void decompress(unsigned char* input, unsigned int inputSize, unsigned char* output, unsigned int outputSize);
+            ArgumentsParser() = default;
+            Arguments parse(int argc, char** argv) const;
     };
 }
-#endif // DATUNPACKER_LZSS_H
+
+#endif //DATUNPACKER_ARGUMENTSPARSER_H

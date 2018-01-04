@@ -24,236 +24,55 @@
 
 // C++ standard includes
 #include <iostream>
-#include <fstream>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <algorithm>
-#include <dirent.h>
-#include <map>
 
-// DatFile includes
-#include "defines.h"
-#include "DatFile.h"
-#include "DatFileItem.h"
+// DatUnpacker includes
+#include "ArgumentsChecker.h"
+#include "ArgumentsParser.h"
+#include "DatFileUnpacker.h"
 
 // Third party includes
 
-using namespace DatFile;
+using namespace DatUnpacker;
 
-struct
+void usage()
 {
-    bool quietMode = false;
-    std::string action;
-    std::string source;
-    std::string destination;
-    std::string error;
-    Format format = Format::FALLOUT2;
-
-} options;
-
-DatFile::DatFile* datFile = 0;
-std::map<std::string, std::vector<DatFileItem*>*> filesList;
-
-void scanDirectory(std::string path) {
-    std::string shortPath = path.substr(options.source.length() + 1);
-    if (shortPath != ".") {
-        shortPath = shortPath.substr(2);
-    }
-    filesList.insert(std::pair<std::string, std::vector<DatFileItem*>*>(shortPath, new std::vector<DatFileItem*>));
-
-    DIR *dir;
-    struct dirent *ent;
-    if ((dir = opendir (path.c_str())) != NULL) {
-        while ((ent = readdir (dir)) != NULL) {
-            std::string name = ent->d_name;
-            if (name == "." || name == "..") continue;
-            struct stat s;
-            std::string newpath = path + "/" + name;
-            stat(newpath.c_str(), &s);
-            if (s.st_mode & S_IFDIR) {
-                //directories.push_back(newpath.substr(source.length() + 1));
-                scanDirectory(newpath);
-            } else {
-                DatFileItem* item = new DatFileItem(0);
-                item->setName(name);
-                item->setPackedSize(s.st_size);
-                item->setUnpackedSize(s.st_size);
-                filesList.at(shortPath)->push_back(item);
-            }
-        }
-        closedir (dir);
-        if (filesList.at(shortPath)->size() == 0) {
-            filesList.erase(shortPath);
-        }
-    } else {
-        std::cout << "could not open directory: " << path << std::endl;
-    }
-}
-
-bool checkDatFile() {
-    if (options.source.length() == 0) {
-        options.error = "Source file is not defined";
-        return false;
-    }
-    std::ifstream stream;
-    stream.open(options.source.c_str(), std::ios::binary);
-    if (!stream.is_open()) {
-        options.error = "Can't open source file: " + options.source;
-        return false;
-    }
-
-    if (!datFile) {
-        datFile = new DatFile::DatFile(options.source);
-    }
-
-    if (!datFile->version()) {
-        options.error = options.source + " is not a DAT file";
-        return false;
-    }
-    return true;
-}
-
-bool actionUnpack() {
-    if (!checkDatFile()) {
-        return false;
-    }
-
-    // check destination folder
-    if (options.destination.length() == 0) {
-        options.error = "Destination directory is not defined";
-        return false;
-    } else {
-        struct stat info;
-        if(stat(options.destination.c_str(), &info) != 0) {
-            options.error = "Destination directory does not exists: " + options.destination;
-            return false;
-        }
-        if(!(info.st_mode & S_IFDIR)) {
-            options.error = "Destination is not a directory: " + options.destination;
-            return false;
-        }
-    }
-    // extract items
-    for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it) {
-        DatFileItem* item = *it;
-
-        // rtrim
-        options.destination.erase(options.destination.find_last_not_of("/\\")+1);
-
-        std::string name = item->name();
-        std::replace(name.begin(),name.end(),'\\','/');
-        //std::transform(name.begin(),name.end(),name.begin(), ::tolower);
-
-        std::string basepath = options.destination + "/";
-        std::string fullpath = basepath + name;
-        std::string path = fullpath;
-        std::string dirpath = "";
-        while (path.find('/') != std::string::npos) {
-            unsigned int pos = path.find('/');
-            dirpath += path.substr(0, pos) + "/";
-            path = path.substr(pos + 1);
-            // create directory
-            #ifdef __unix__
-                mkdir(dirpath.substr(0, dirpath.length()-1).c_str(), 0755);
-            #endif
-        }
-
-        if (!options.quietMode) {
-            std::cout << fullpath << std::endl;
-        }
-        std::ofstream stream;
-        stream.open(fullpath.c_str());
-        stream.write((char*)item->data(), item->unpackedSize());
-        stream.close();
-        delete [] item->data();
-    }
-    return true;
-}
-
-bool actionList() {
-    if (!checkDatFile()) return false;
-    for (std::vector<DatFileItem*>::iterator it = datFile->items()->begin(); it != datFile->items()->end(); ++it) {
-        DatFileItem* item = *it;
-        std::cout << item->name() << std::endl;
-    }
-    return true;
-}
-
-bool actionFormat() {
-    if (!checkDatFile()) return false;
-    std::cout << "dat" << datFile->version() << std::endl;
-    return true;
-}
-
-void actionHelp() {
-    std::cout << "DAT unpacker for Fallout 1/2 v0.0.4" << std::endl;
+    std::cout << "Unpacker for Fallout 1/2 DAT files" << std::endl;
+    std::cout << "v0.0.5 (c) 2012-2018 Falltergeist Developers" << std::endl;
     std::cout << "Usage: dat-unpacker [arguments]" << std::endl;
+    std::cout << "Example: dat-unpacker -f dat1 -s ~/fallout1/master.dat -d ~/unpacked" << std::endl;
     std::cout << std::endl;
     std::cout << "Arguments:" << std::endl;
-    std::cout << "  --list, -l list  DAT file items" << std::endl;
-    std::cout << "  --format, -f DAT file format" << std::endl;
-    std::cout << "  --quiet, -q quite mode. Do not display anything" << std::endl;
-    std::cout << "  --unpack, -u unpack DAT file" << std::endl;
-    std::cout << "  --source, -s path to DAT file" << std::endl;
-    std::cout << "  --destination, -d path to extract files" << std::endl;
+    std::cout << "  --format, -f        Fallout DAT file format version. 'dat1' or 'dat2'. 'dat2' is default" << std::endl;
+    std::cout << "                      Possible values are: 'dat1', 'dat2'." << std::endl;
+    std::cout << "                      (Defaults to 'dat2')" << std::endl;
+    std::cout << "  --quiet, -q         Quite mode. Do not display anything" << std::endl;
+    std::cout << "  --transform, -t     Transform file names to lowercase" << std::endl;
+    std::cout << "  --source, -s        Path to the DAT file" << std::endl;
+    std::cout << "  --destination, -d   Where to extract files" << std::endl;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
+    ArgumentsParser argumentsParser;
+    auto arguments = argumentsParser.parse(argc, argv);
 
-    for (int i = 0; i != argc; i++) {
-        std::string argument = argv[i];
-
-        if (argument == "--list" || argument == "-l") {
-            options.action = "list";
-        } else if (argument == "--format" || argument == "-f") {
-            if (i < argc - 1) {
-                std::string format = argv[i+1];
-                if (format == "dat1") {
-                    i++;
-                    options.format = Format::FALLOUT1;
-                } else if(format == "dat2") {
-                    i++;
-                    options.format = Format::FALLOUT2;
-                } else {
-                    options.format = Format::UNKNOWN;
-                    options.action = "format";
-                }
-            } else {
-                options.action = "format";
-            }
-        } else if (argument == "--quiet" || argument == "-q") {
-            options.quietMode = true;
-        } else if((argument == "--source" || argument == "-s") && (i < argc-1)) {
-            options.source = argv[++i];
-        } else if((argument == "--destination" || argument == "-d") && (i < argc-1)) {
-            options.destination = argv[++i];
-        } else {
-            options.action = "help";
+    ArgumentsChecker argumentsChecker;
+    if (!argumentsChecker.check(arguments)) {
+        if (!arguments.quietMode) {
+            std::cerr << argumentsChecker.getErrorMessage() << std::endl;
+            usage();
         }
-    }
-
-    bool result;
-
-    if (options.action == "unpack") {
-        result = actionUnpack();
-    } else if (options.action == "list") {
-        result = actionList();
-    } else if (options.action == "format") {
-        result = actionFormat();
-    } else {
-        result = actionUnpack();
-    }
-
-    if (!result && options.quietMode) {
         return 1;
     }
 
-    if (!result || options.action == "help") {
-        if (options.error.length()) {
-            std::cout << "[ERROR] " << options.error << std::endl;
+    DatFileUnpacker datFileUnpacker;
+    if (!datFileUnpacker.unpack(arguments)) {
+        if (!arguments.quietMode) {
+            std::cerr << datFileUnpacker.getErrorMessage() << std::endl;
+            usage();
         }
-        actionHelp();
         return 1;
     }
+
     return 0;
 }

@@ -22,17 +22,17 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_DATFILEITEM_H
-#define DATFILE_DATFILEITEM_H
+#ifndef DATUNPACKER_DATFILEITEM_H
+#define DATUNPACKER_DATFILEITEM_H
 
 // C++ standard includes
 #include <string>
 
-// DatFile includes
+// DatUnpacker includes
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
     class DatFile;
 
@@ -65,4 +65,4 @@ namespace DatFile
             unsigned int _dataOffset;
     };
 }
-#endif // DATFILE_DATFILEITEM_H
+#endif // DATUNPACKER_DATFILEITEM_H

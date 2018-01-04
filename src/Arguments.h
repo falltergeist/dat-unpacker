@@ -22,34 +22,25 @@
  * SOFTWARE.
  */
 
-#ifndef DATFILE_ARCHIVE_H
-#define DATFILE_ARCHIVE_H
+#ifndef DATUNPACKER_ARGUMENTS_H
+#define DATUNPACKER_ARGUMENTS_H
 
 // C++ standard includes
-#include <string>
-#include <vector>
 
-// DatFile includes
+// DatUnpacker includes
+#include "Format.h"
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
-    class ArchiveEntry;
-
-    class Archive
-    {
-        public:
-            Archive(std::string filename);
-            ~Archive();
-
-            std::string filename() const;
-
-            std::vector<ArchiveEntry*>* entries();
-
-        private:
-            std::string _filename;
-            std::vector<ArchiveEntry*> _entries;
-    };
+    typedef struct {
+        bool quietMode = false;
+        bool transformNames = false;
+        std::string source;
+        std::string destination;
+        Format format = Format::FALLOUT2;
+    } Arguments;
 }
-#endif // DATFILE_ARCHIVE_H
+
+#endif //DATUNPACKER_ARGUMENTS_H

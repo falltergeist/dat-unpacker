@@ -22,23 +22,33 @@
  * SOFTWARE.
  */
 
-// C++ standard includes
+#ifndef DATUNPACKER_ARGUMENTSCHECKER_H
+#define DATUNPACKER_ARGUMENTSCHECKER_H
 
-// DatFile includes
-#include "Archive.h"
-#include "ArchiveEntry.h"
+// C++ standard includes
+#include <string>
+
+// DatUnpacker includes
+#include "Arguments.h"
+#include "Format.h"
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
-    ArchiveEntry::ArchiveEntry(Archive* archive)
+    class ArgumentsChecker
     {
-        _archive = archive;
-    }
+        public:
+            ArgumentsChecker() = default;
+            bool check(const Arguments& arguments);
+            bool checkFormat(const Format& format);
+            bool checkSource(const std::string& source);
+            bool checkDestination(const std::string& destination);
+            std::string getErrorMessage() const;
 
-    Archive* ArchiveEntry::archive() const
-    {
-        return _archive;
-    }
+        private:
+            std::string _errorMessage;
+    };
 }
+
+#endif //DATUNPACKER_ARGUMENTSCHECKER_H

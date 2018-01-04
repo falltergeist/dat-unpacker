@@ -26,12 +26,12 @@
 #include <iostream>
 #include <cstring>
 
-// DatFile includes
+// DatUnpacker includes
 #include "LZSS.h"
 
 // Third party includes
 
-namespace DatFile
+namespace DatUnpacker
 {
     void  LZSS::decompress(unsigned char* input, unsigned int inputSize, unsigned char* output, unsigned int outputSize)
     {
