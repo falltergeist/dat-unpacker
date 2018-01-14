@@ -1,4 +1,4 @@
-dat-unpacker [![Build Status](https://travis-ci.org/falltergeist/dat-unpacker.svg?branch=develop)](https://travis-ci.org/falltergeist/dat-unpacker)
+dat-unpacker [![Build Status](https://travis-ci.org/falltergeist/dat-unpacker.svg?branch=develop)](https://travis-ci.org/falltergeist/dat-unpacker) [![Version](https://img.shields.io/github/release/falltergeist/dat-unpacker.svg)](https://github.com/falltergeist/dat-unpacker/releases/latest) [![Discord](https://img.shields.io/discord/401990446747877376.svg)](https://discord.gg/jxs6WRq)
 ===
 
 Console utility to unpack Fallout 1 or Fallout 2 DAT files
