@@ -34,9 +34,27 @@ endif(NOT ZLIB_FOUND)
 include_directories(${ZLIB_INCLUDE_DIRS})
 
 cmake_minimum_required(VERSION 3.10)
-aux_source_directory(src SRC_LIST)
+
 set(CMAKE_BUILD_TYPE Debug)
-add_executable(${PROJECT_NAME} ${SRC_LIST})
+add_executable(${PROJECT_NAME}
+    src/Arguments.h
+    src/ArgumentsChecker.cpp
+    src/ArgumentsChecker.h
+    src/ArgumentsParser.cpp
+    src/ArgumentsParser.h
+    src/DatFile.cpp
+    src/DatFile.h
+    src/DatFileItem.cpp
+    src/DatFileItem.h
+    src/DatFileUnpacker.cpp
+    src/DatFileUnpacker.h
+    src/Exception.cpp
+    src/Exception.h
+    src/Format.h
+    src/LZSS.cpp
+    src/LZSS.h
+    src/main.cpp
+)
 if(MSVC) 
 	target_compile_options(${PROJECT_NAME} PRIVATE /W4)
 else()

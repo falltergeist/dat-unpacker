@@ -1,15 +1,39 @@
-os:
-  - linux
-  - osx
-
 language: cpp
-sudo: required
-dist: trusty
+
+matrix:
+  include:
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+#          packages:
+#            - clang
+#      env:
+#        - MATRIX_EVAL="CC=clang CXX=clang++"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - g++-9
+      env:
+        - MATRIX_EVAL="CC=gcc-9 CXX=g++-9"
+# filesystem will be supported in macOS 10.15
+#    - os: osx
+#      osx_image: xcode11.3
+#      env:
+#        - MATRIX_EVAL="CC=clang CXX=clang++"
+#    - os: osx
+#      osx_image: xcode11.3
+#      env:
+#        - MATRIX_EVAL="CC=gcc CXX=g++"
+    
+before_install:
+  - eval "${MATRIX_EVAL}"
 
 script:
   - cmake .
   - make -j2
 
-compiler:
-  - clang
-  - gcc

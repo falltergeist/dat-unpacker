@@ -1,5 +1,6 @@
 0.0.6 Under development
 -----------------------
+- Windows support (JanSimek)
 
 0.0.5 (2018-01-04)
 -----------------------

@@ -21,7 +21,8 @@ Compilation from source:
 Dependencies:
 -------------
 
-- CMake (>= 2.8)
+- compiler which supports the C++17 standard and the filesystem library
+- CMake (>= 3.10)
 - zlib1g-dev (>= 1.2)
 
 Build:
