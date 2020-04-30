@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 Falltergeist Developers
+ * Copyright (c) 2012-2020 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@
 // C++ standard includes
 #include <algorithm>
 #include <iostream>
+#include <filesystem>
 
 // DatUnpacker includes
 #include "DatFile.h"
 #include "DatFileItem.h"
 #include "DatFileUnpacker.h"
-#include "FileSystemHelper.h"
 #include "Arguments.h"
 
 // Third party includes
@@ -56,8 +56,6 @@ namespace DatUnpacker
             return false;
         }
 
-        FileSystemHelper fileSystemHelper;
-
         // extract items
         for (auto item : *datFile.items()) {
 
@@ -70,7 +68,8 @@ namespace DatUnpacker
 
             std::string fullpath = arguments.destination + "/" + name;
             std::string directory = fullpath.substr(0, fullpath.find_last_of('/'));
-            fileSystemHelper.createDirectoryRecursive(directory, 0755);
+
+            std::filesystem::create_directories(directory);
 
             if (!arguments.quietMode) {
                 std::cout << fullpath << std::endl;
@@ -91,7 +90,7 @@ namespace DatUnpacker
         return _errorMessage;
     }
 
-    bool DatFileUnpacker::checkDatFile(const DatFile& datFile, const Arguments& arguments)
+    bool DatFileUnpacker::checkDatFile(const DatFile&, const Arguments&)
     {
         // TODO check file integrity
         return true;

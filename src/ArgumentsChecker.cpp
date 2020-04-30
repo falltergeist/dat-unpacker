@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 Falltergeist Developers
+ * Copyright (c) 2012-2020 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,11 @@
  */
 
 // C++ standard includes
+#include <filesystem>
+#include <system_error>
 
 // DatUnpacker includes
 #include "ArgumentsChecker.h"
-#include "FileSystemHelper.h"
 
 // Third party includes
 
@@ -70,8 +71,7 @@ namespace DatUnpacker
             return false;
         }
 
-        FileSystemHelper fileSystemHelper;
-        if (!fileSystemHelper.isFile(source)) {
+        if (!std::filesystem::is_regular_file(source)) {
             _errorMessage = "DAT file not found: " + source;
             return false;
         }
@@ -86,16 +86,16 @@ namespace DatUnpacker
             return false;
         }
 
-        FileSystemHelper fileSystemHelper;
+        if (!std::filesystem::is_directory(destination)) {
+            std::error_code errc;
+            std::filesystem::create_directories(destination, errc);
 
-        if (!fileSystemHelper.isDirectory(destination)) {
-            if (!fileSystemHelper.createDirectoryRecursive(destination, 0755)) {
-                _errorMessage = "Can't create destination directory: " + destination;
+            if (errc) {
+                _errorMessage = "Can't create destination directory: " + destination 
+                    + " (" + errc.message() + ")";
                 return false;
             }
-            throw 1;
         }
-
         return true;
     }
 }

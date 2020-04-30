@@ -37,7 +37,7 @@ namespace DatUnpacker
     DatFile::DatFile(std::string filename, bool write)
     {
         _filename = filename;
-        _endianness = LITTLE_ENDIAN;
+        _endianness = Endianness::Little;
         _version = -1;
         _items = 0;
 
@@ -83,7 +83,7 @@ namespace DatUnpacker
         _version = value;
         if (_version == 1)
         {
-            _endianness = BIG_ENDIAN;
+            _endianness = Endianness::Big;
         }
     }
 
@@ -124,14 +124,14 @@ namespace DatUnpacker
             }
         }
 
-        unsigned int realSize = size();
+        int64_t realSize = size();
 
         switch(_version)
         {
             case 1:
             {
                 //fetching items
-                _endianness = BIG_ENDIAN;
+                _endianness = Endianness::Big;
                 setPosition(0);
                 unsigned int directoriesCounter;
                 std::vector<std::string> directories;
@@ -238,7 +238,7 @@ namespace DatUnpacker
         }
     }
 
-    int DatFile::position()
+    int64_t DatFile::position()
     {
         if (_ifstream.is_open())
         {
@@ -253,7 +253,7 @@ namespace DatUnpacker
         return -1;
     }
 
-    void DatFile::setPosition(unsigned int position)
+    void DatFile::setPosition(int64_t position)
     {
         if (_ifstream.is_open())
         {
@@ -268,9 +268,9 @@ namespace DatUnpacker
         }
     }
 
-    int DatFile::size()
+    int64_t DatFile::size()
     {
-        int oldPosition = position();
+        int64_t oldPosition = position();
 
         if (_ifstream.is_open())
         {
@@ -282,7 +282,7 @@ namespace DatUnpacker
             _ofstream.seekp(0, std::ios::end);
         }
 
-        int value = position();
+        int64_t value = position();
         setPosition(oldPosition);
         return value;
     }
@@ -290,7 +290,7 @@ namespace DatUnpacker
     DatFile& DatFile::operator>>(unsigned int &value)
     {
         _ifstream.read((char*)&value, sizeof(unsigned int));
-        if (_endianness == BIG_ENDIAN)
+        if (_endianness == Endianness::Big)
         {
             value = _swap(value);
         }
@@ -305,7 +305,7 @@ namespace DatUnpacker
     DatFile& DatFile::operator>>(unsigned short &value)
     {
         _ifstream.read((char*)&value, sizeof(unsigned short));
-        if (_endianness == BIG_ENDIAN)
+        if (_endianness == Endianness::Big)
         {
             value = _swap(value);
         }
@@ -351,7 +351,7 @@ namespace DatUnpacker
 
     std::string DatFile::name()
     {
-        unsigned int pos = _filename.find_last_of("/\\");
+        size_t pos = _filename.find_last_of("/\\");
         if (pos != std::string::npos)
         {
             return _filename.substr(pos + 1);
@@ -367,7 +367,7 @@ namespace DatUnpacker
 
     DatFile& DatFile::operator<<(unsigned int value)
     {
-        if (_endianness == BIG_ENDIAN)
+        if (_endianness == Endianness::Big)
         {
             value = _swap(value);
         }
@@ -384,7 +384,7 @@ namespace DatUnpacker
 
     DatFile& DatFile::operator<<(unsigned short value)
     {
-        if (_endianness == BIG_ENDIAN)
+        if (_endianness == Endianness::Big)
         {
             value = _swap(value);
         }

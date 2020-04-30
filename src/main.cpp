@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 Falltergeist Developers
+ * Copyright (c) 2012-2020 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     ArgumentsChecker argumentsChecker;
     if (!argumentsChecker.check(arguments)) {
         if (!arguments.quietMode) {
-            std::cerr << argumentsChecker.getErrorMessage() << std::endl;
+            std::cerr << argumentsChecker.getErrorMessage() << std::endl << std::endl;
             usage();
         }
         return 1;
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     DatFileUnpacker datFileUnpacker;
     if (!datFileUnpacker.unpack(arguments)) {
         if (!arguments.quietMode) {
-            std::cerr << datFileUnpacker.getErrorMessage() << std::endl;
+            std::cerr << datFileUnpacker.getErrorMessage() << std::endl << std::endl;
             usage();
         }
         return 1;

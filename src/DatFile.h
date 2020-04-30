@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 Falltergeist Developers
+ * Copyright (c) 2012-2020 Falltergeist Developers
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,11 @@ namespace DatUnpacker
     class DatFile
     {
         public:
+            enum class Endianness {
+                Little, 
+                Big
+            };
+
             enum VERSION
             {
                 FALLOUT1,
@@ -53,9 +58,9 @@ namespace DatUnpacker
             std::string name();
             unsigned int version();
             void setVersion(unsigned int value);
-            int position();
-            void setPosition(unsigned int position);
-            int size();
+            int64_t position();
+            void setPosition(int64_t position);
+            int64_t size();
             void skipBytes(unsigned int value);
             void readBytes(unsigned char* destination, unsigned int value);
             void writeBytes(unsigned char* source, unsigned int value);
@@ -71,7 +76,7 @@ namespace DatUnpacker
 
         protected:
             int _version;
-            unsigned int _endianness;
+            Endianness _endianness;
             std::ifstream _ifstream;
             std::ofstream _ofstream;
             std::string _filename;
