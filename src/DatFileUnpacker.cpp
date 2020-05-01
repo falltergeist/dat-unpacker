@@ -76,7 +76,7 @@ namespace DatUnpacker
             }
 
             std::ofstream stream;
-            stream.open(fullpath.c_str());
+            stream.open(fullpath.c_str(), std::ofstream::out | std::ofstream::binary);
             stream.write((char*)item->data(), item->unpackedSize());
             stream.close();
             delete [] item->data();
