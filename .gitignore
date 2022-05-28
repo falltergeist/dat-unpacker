@@ -7,5 +7,5 @@ datfile
 *.exe
 *.cbp
 *.dat
-.idea
+/.idea/
 /cmake-build-debug
