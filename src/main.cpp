@@ -48,13 +48,13 @@ int main(int argc, char** argv)
       return 1;
     }
 
-    Arguments arguments({
-        .quietMode = vm["quiet"].as<bool>(),
-        .transformNames = vm["transform"].as<bool>(),
-        .source = vm["source"].as<std::string>(),
-        .destination = vm["destination"].as<std::string>(),
-        .format = vm["format"].as<std::string>() == "dat2" ? Format::FALLOUT2 : Format::FALLOUT1
-    });
+    Arguments arguments = {
+        vm["quiet"].as<bool>(),
+        vm["transform"].as<bool>(),
+        vm["source"].as<std::string>(),
+        vm["destination"].as<std::string>(),
+        vm["format"].as<std::string>() == "dat2" ? Format::FALLOUT2 : Format::FALLOUT1
+    };
 
     ArgumentsChecker argumentsChecker;
     if (!argumentsChecker.check(arguments)) {
