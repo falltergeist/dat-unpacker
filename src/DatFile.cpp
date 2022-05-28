@@ -8,102 +8,88 @@
 #include <iostream>
 #include <algorithm>
 
-namespace DatUnpacker
-{
-    DatFile::DatFile(std::string filename, bool write)
-    {
+namespace DatUnpacker {
+    DatFile::DatFile(std::string filename, bool write) {
         _filename = filename;
         _endianness = Endianness::Little;
         _version = -1;
         _items = 0;
 
-        if (write)
-        {
+        if (write) {
             _ofstream.open(_filename.c_str(), std::ios::binary | std::ios::trunc);
-            if (!_ofstream.is_open())
-            {
+            if (!_ofstream.is_open()) {
                 throw 1;
             }
         }
     }
 
-    DatFile::~DatFile()
-    {
-        if (_ifstream.is_open()) _ifstream.close();
-        if (_ofstream.is_open()) _ofstream.close();
+    DatFile::~DatFile() {
+        if (_ifstream.is_open()) {
+            _ifstream.close();
+        }
+        if (_ofstream.is_open()) {
+            _ofstream.close();
+        }
         delete _items;
     }
 
-    unsigned int DatFile::_swap(unsigned int value)
-    {
+    unsigned int DatFile::_swap(unsigned int value) {
         return (value << 24) | ((value & 0x0000FF00) << 8) | ((value & 0x00FF0000) >> 8) | (value >> 24);
     }
 
-    int DatFile::_swap(int value)
-    {
+    int DatFile::_swap(int value) {
         return _swap((unsigned int ) value);
     }
 
-    unsigned short DatFile::_swap(unsigned short value)
-    {
+    unsigned short DatFile::_swap(unsigned short value) {
         return (value << 8) | (value >> 8);
     }
 
-    short DatFile::_swap(short value)
-    {
+    short DatFile::_swap(short value) {
         return _swap((unsigned short) value);
     }
 
-    void DatFile::setVersion(unsigned int value)
-    {
+    void DatFile::setVersion(unsigned int value) {
         _version = value;
-        if (_version == 1)
-        {
+        if (_version == 1) {
             _endianness = Endianness::Big;
         }
     }
 
-    unsigned int DatFile::version()
-    {
-        if (_version >=0) return _version;
+    unsigned int DatFile::version() {
+        if (_version >=0) {
+            return _version;
+        }
 
-        try
-        {
+        try {
             _version = 2;
             _fetchItems();
-        }
-        catch(...)
-        {
-            try
-            {
+        } catch(...) {
+            try {
                 _version = 1;
                 _fetchItems();
-            }
-            catch(...)
-            {
+            } catch(...) {
                 _version = 0;
             }
         }
         return _version;
     }
 
-    void DatFile::_fetchItems()
-    {
-        if (_items) return;
+    void DatFile::_fetchItems() {
+        if (_items) {
+            return;
+        }
 
-        if (!_ifstream.is_open())
-        {
+        if (!_ifstream.is_open()) {
             _ifstream.open(_filename.c_str(), std::ios::binary);
-            if (!_ifstream.is_open())
-            {
+            if (!_ifstream.is_open()) {
                 throw 1;
             }
         }
 
         unsigned int realSize = size();
 
-        switch(_version)
-        {
+        switch(_version) {
             case 1:
             {
                 //fetching items

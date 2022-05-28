@@ -1,5 +1,6 @@
 Under development
 -----------------------
+- Feature: boost::program_options for cli arguments (alexeevdv)
 - Feature: GitHub Actions build (alexeevdv) 
 
 0.0.5 (2018-01-04)

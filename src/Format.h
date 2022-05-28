@@ -5,8 +5,7 @@
 
 // stdlib
 
-namespace DatUnpacker
-{
+namespace DatUnpacker {
     enum class Format {
         UNKNOWN = 0,
         FALLOUT1,
