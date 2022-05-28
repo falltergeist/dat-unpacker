@@ -10,11 +10,11 @@
 
 namespace DatUnpacker
 {
-    typedef struct {
+    struct Arguments {
         bool quietMode = false;
         bool transformNames = false;
         std::string source;
         std::string destination;
         Format format = Format::FALLOUT2;
-    } Arguments;
+    };
 }

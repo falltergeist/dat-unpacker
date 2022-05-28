@@ -16,6 +16,11 @@ namespace DatUnpacker
     class DatFile
     {
         public:
+            enum class Endianness {
+                Little,
+                Big
+            };
+
             enum VERSION
             {
                 FALLOUT1,
@@ -46,7 +51,7 @@ namespace DatUnpacker
 
         protected:
             int _version;
-            unsigned int _endianness;
+            Endianness _endianness;
             std::ifstream _ifstream;
             std::ofstream _ofstream;
             std::string _filename;

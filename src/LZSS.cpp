@@ -11,7 +11,7 @@ namespace DatUnpacker
 {
     void  LZSS::decompress(unsigned char* input, unsigned int inputSize, unsigned char* output, unsigned int outputSize)
     {
-        unsigned short D = 4096;
+        const unsigned short D = 4096;
         unsigned short DO, DI = 0;
         short N;
         unsigned char dictionary[D];

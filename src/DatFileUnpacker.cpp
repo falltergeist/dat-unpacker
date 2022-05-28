@@ -2,7 +2,6 @@
 #include "DatFile.h"
 #include "DatFileItem.h"
 #include "DatFileUnpacker.h"
-#include "FileSystemHelper.h"
 #include "Arguments.h"
 
 // Third party includes
@@ -10,6 +9,7 @@
 // stdlib
 #include <algorithm>
 #include <iostream>
+#include <filesystem>
 
 namespace DatUnpacker
 {
@@ -32,8 +32,6 @@ namespace DatUnpacker
             return false;
         }
 
-        FileSystemHelper fileSystemHelper;
-
         // extract items
         for (auto item : *datFile.items()) {
 
@@ -46,14 +44,15 @@ namespace DatUnpacker
 
             std::string fullpath = arguments.destination + "/" + name;
             std::string directory = fullpath.substr(0, fullpath.find_last_of('/'));
-            fileSystemHelper.createDirectoryRecursive(directory, 0755);
+
+            std::filesystem::create_directories(directory);
 
             if (!arguments.quietMode) {
                 std::cout << fullpath << std::endl;
             }
 
             std::ofstream stream;
-            stream.open(fullpath.c_str());
+            stream.open(fullpath.c_str(), std::ofstream::out | std::ofstream::binary);
             stream.write((char*)item->data(), item->unpackedSize());
             stream.close();
             delete [] item->data();
