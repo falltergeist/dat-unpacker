@@ -2,6 +2,7 @@
   "name": "falltergeist-dat-unpacker",
   "version-string": "0.0.5",
   "dependencies": [
+    "boost-program-options",
     "zlib"
   ]
 }

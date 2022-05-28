@@ -8,8 +8,7 @@
 // stdlib
 #include <string>
 
-namespace DatUnpacker
-{
+namespace DatUnpacker {
     struct Arguments {
         bool quietMode = false;
         bool transformNames = false;

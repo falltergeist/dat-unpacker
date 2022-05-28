@@ -7,10 +7,8 @@
 #include <filesystem>
 #include <system_error>
 
-namespace DatUnpacker
-{
-    bool ArgumentsChecker::check(const Arguments& arguments)
-    {
+namespace DatUnpacker {
+    bool ArgumentsChecker::check(const Arguments& arguments) {
         if (!checkFormat(arguments.format)) {
             return false;
         }
@@ -26,13 +24,11 @@ namespace DatUnpacker
         return true;
     }
 
-    std::string ArgumentsChecker::getErrorMessage() const
-    {
+    const std::string& ArgumentsChecker::getErrorMessage() const {
         return _errorMessage;
     }
 
-    bool ArgumentsChecker::checkFormat(const Format &format)
-    {
+    bool ArgumentsChecker::checkFormat(const Format &format) {
         if (format == Format::UNKNOWN) {
             _errorMessage = "Unknown DAT file format version";
             return false;
@@ -40,8 +36,7 @@ namespace DatUnpacker
         return true;
     }
 
-    bool ArgumentsChecker::checkSource(const std::string& source)
-    {
+    bool ArgumentsChecker::checkSource(const std::string& source) {
         if (source.length() == 0) {
             _errorMessage = "Path to DAT file not specified";
             return false;
@@ -55,8 +50,7 @@ namespace DatUnpacker
         return true;
     }
 
-    bool ArgumentsChecker::checkDestination(const std::string& destination)
-    {
+    bool ArgumentsChecker::checkDestination(const std::string& destination) {
         if (destination.length() == 0) {
             _errorMessage = "Destination path not specified";
             return false;

@@ -1,5 +1,6 @@
-dat-unpacker [![Build Status](https://travis-ci.org/falltergeist/dat-unpacker.svg?branch=develop)](https://travis-ci.org/falltergeist/dat-unpacker) [![Version](https://img.shields.io/github/release/falltergeist/dat-unpacker.svg)](https://github.com/falltergeist/dat-unpacker/releases/latest) [![Discord](https://img.shields.io/discord/401990446747877376.svg)](https://discord.gg/jxs6WRq)
+dat-unpacker
 ===
+[![Version](https://img.shields.io/github/release/falltergeist/dat-unpacker.svg)](https://github.com/falltergeist/dat-unpacker/releases/latest) [![Discord](https://img.shields.io/discord/401990446747877376.svg)](https://discord.gg/jxs6WRq)
 
 Console utility to unpack Fallout 1 or Fallout 2 DAT files
 
@@ -20,28 +21,28 @@ Compilation from source:
 
 Dependencies:
 -------------
-
-- CMake (>= 2.8)
-- zlib1g-dev (>= 1.2)
+- [zlib](https://github.com/madler/zlib)
+- [boost::program_options](https://github.com/boostorg/program_options)
 
 Build:
 
 ```bash
-mkdir build && cd build && cmake .. && make
+cmake . && make
 ```
 
 Usage
 ===
 ```
-Usage: dat-unpacker [arguments]
+$ dat-unpacker --help                                               
+Unpacker for Fallout 1/2 DAT files
+v0.0.5 (c) 2012-2022 Falltergeist Developers
 Example: dat-unpacker -f dat1 -s ~/fallout1/master.dat -d ~/unpacked
-
 Arguments:
-  --format, -f        Fallout DAT file format version. 'dat1' or 'dat2'. 'dat2' is default
-                      Possible values are: 'dat1', 'dat2'.
-                      (Defaults to 'dat2')
-  --quiet, -q         Quite mode. Do not display anything
-  --transform, -t     Transform file names to lowercase
-  --source, -s        Path to the DAT file
-  --destination, -d   Where to extract files
+  --help                      Produce help message
+  -f [ --format ] arg (=dat2) Fallout DAT file format version. 'dat1' or 
+                              'dat2'. 'dat2' is default
+  -q [ --quiet ]              Quite mode. Do not display anything
+  -t [ --transform ]          Transform file names to lowercase
+  -s [ --source ] arg         Path to the DAT file
+  -d [ --destination ] arg    Where to extract files
 ```
