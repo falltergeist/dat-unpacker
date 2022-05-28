@@ -1,43 +1,19 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2012-2018 Falltergeist Developers
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-// C++ standard includes
-#include <iostream>
-#include <algorithm>
-
-// DatUnpacker includes
+// Project includes
 #include "DatFile.h"
 #include "DatFileItem.h"
 
 // Third party includes
+
+// stdlib
+#include <iostream>
+#include <algorithm>
 
 namespace DatUnpacker
 {
     DatFile::DatFile(std::string filename, bool write)
     {
         _filename = filename;
-        _endianness = LITTLE_ENDIAN;
+        _endianness = Endianness::Little;
         _version = -1;
         _items = 0;
 
@@ -83,7 +59,7 @@ namespace DatUnpacker
         _version = value;
         if (_version == 1)
         {
-            _endianness = BIG_ENDIAN;
+            _endianness = Endianness::Big;
         }
     }
 
@@ -131,7 +107,7 @@ namespace DatUnpacker
             case 1:
             {
                 //fetching items
-                _endianness = BIG_ENDIAN;
+                _endianness = Endianness::Big;
                 setPosition(0);
                 unsigned int directoriesCounter;
                 std::vector<std::string> directories;
@@ -290,7 +266,7 @@ namespace DatUnpacker
     DatFile& DatFile::operator>>(unsigned int &value)
     {
         _ifstream.read((char*)&value, sizeof(unsigned int));
-        if (_endianness == BIG_ENDIAN)
+        if (_endianness == Endianness::Big)
         {
             value = _swap(value);
         }
@@ -305,7 +281,7 @@ namespace DatUnpacker
     DatFile& DatFile::operator>>(unsigned short &value)
     {
         _ifstream.read((char*)&value, sizeof(unsigned short));
-        if (_endianness == BIG_ENDIAN)
+        if (_endianness == Endianness::Big)
         {
             value = _swap(value);
         }
@@ -351,7 +327,7 @@ namespace DatUnpacker
 
     std::string DatFile::name()
     {
-        unsigned int pos = _filename.find_last_of("/\\");
+        size_t pos = _filename.find_last_of("/\\");
         if (pos != std::string::npos)
         {
             return _filename.substr(pos + 1);
@@ -367,7 +343,7 @@ namespace DatUnpacker
 
     DatFile& DatFile::operator<<(unsigned int value)
     {
-        if (_endianness == BIG_ENDIAN)
+        if (_endianness == Endianness::Big)
         {
             value = _swap(value);
         }
@@ -384,7 +360,7 @@ namespace DatUnpacker
 
     DatFile& DatFile::operator<<(unsigned short value)
     {
-        if (_endianness == BIG_ENDIAN)
+        if (_endianness == Endianness::Big)
         {
             value = _swap(value);
         }

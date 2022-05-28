@@ -1,5 +1,6 @@
-0.0.6 Under development
+Under development
 -----------------------
+- Feature: GitHub Actions build (alexeevdv) 
 
 0.0.5 (2018-01-04)
 -----------------------
